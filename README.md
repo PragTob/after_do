@@ -29,10 +29,6 @@ class Dog
   def bark
     puts 'Woooof'
   end
-
-  def eat
-    puts 'yummie!'
-  end
 end
 
 Dog.extend AfterDo
@@ -42,17 +38,17 @@ dog = Dog.new
 dog2 = Dog.new
 
 dog.bark
-dog.eat
 dog2.bark
 
 # Output is:
 # Woooof
 # I just heard a dog bark!
-# yummie!
 # Woooof
 # I just heard a dog bark!
 
 ```
+
+
 
 ## Is there a before method?
 
