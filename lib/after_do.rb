@@ -14,8 +14,8 @@ module AfterDo
     methods.each do |method|
       if _after_do_method_already_renamed?(method)
         _after_do_make_after_do_version_of_method(method)
-        @_after_do_callbacks[method] << block
       end
+      @_after_do_callbacks[method] << block
     end
   end
 
