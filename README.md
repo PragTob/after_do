@@ -22,6 +22,10 @@ Or install it yourself as:
 
 TODO: Write usage instructions here
 
+## Is there a before method?
+
+No not yet, I didn't have a use case for it yet. If you have one please let me know, it is relatively easy to add.
+
 ## Contributing
 
 1. Fork it
