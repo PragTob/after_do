@@ -22,7 +22,37 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+With AfterDo you can do simple things like putting something out everything a method is called as in this example:
+
+```ruby
+class Dog
+  def bark
+    puts 'Woooof'
+  end
+
+  def eat
+    puts 'yummie!'
+  end
+end
+
+Dog.extend AfterDo
+Dog.after :bark do puts 'I just heard a dog bark!' end
+
+dog = Dog.new
+dog2 = Dog.new
+
+dog.bark
+dog.eat
+dog2.bark
+
+# Output is:
+# Woooof
+# I just heard a dog bark!
+# yummie!
+# Woooof
+# I just heard a dog bark!
+
+```
 
 ## Is there a before method?
 
