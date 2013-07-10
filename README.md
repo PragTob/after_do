@@ -61,6 +61,21 @@ end
 
 Doesn't that seem a lot drier then calling some save method manually after each of those in addition to separating the concerns?
 
+## Is this a good idea?
+
+Always depends on what you are doing with it. As many things out there it has its use cases but can easily be misused.
+
+### Advantages
+
+- Get cross cutting concerns packed together in one file - don't have them scattered all over your code base obfuscating what the real responsibility of that class is
+- Don't repeat yourself, define what is happening when in one file
+- I feel like it helps the Single Responsibility principle, as it enables classes to focus on what their main responsibility is and not deal with other stuff. I initially wrote this gem when I wanted to decouple an object of my domain from the way it is saved.
+
+### Drawbacks
+
+- You lose clarity. With this gem it is not immediately visible what happens when a method is called as some behavior might be defined elsewhere.
+- You could use this to modify the behaviour of classes everywhere. Don't. Use it for what it is meant to be used for - a concern that is not the primary concern of the class you are adding the callback to but that class is still involved with.
+
 ## Is there a before method?
 
 No not yet, I didn't have a use case for it yet. If you have one please let me know, it is relatively easy to add.
