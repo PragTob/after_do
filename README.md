@@ -4,6 +4,8 @@ AfterDo is simple gem, that allows you to execute a specified block after specif
 
 This shall not be done to to alter behavior or something but rather to fight cross-cutting concerns such as logging. E.g. with logging you litter all your code wit logging statements - that concern is spread over many files. With AfterDo you could put all the logging in one file.
 
+AfterDo has no external runtime dependencies and the code is just a bit more than 60 lines (blank lines included).
+
 ## Installation
 
 Add this line to your application's Gemfile:
