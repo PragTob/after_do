@@ -48,7 +48,18 @@ dog2.bark
 
 ```
 
+As another example: If you have an activity and want to activity to be saved every time you change it, but you don't want to mix that persistence concern with what the activity actually does you could do something like this:
 
+```ruby
+persistor  = FilePersistor.new
+Activity.extend AfterDo
+Activity.after :start, :pause, :finish, :resurrect,
+             :do_today, :do_another_day do |activity|
+  persistor.save activity
+end
+```
+
+Doesn't that seem a lot drier then calling some save method manually after each of those in addition to separating the concerns?
 
 ## Is there a before method?
 
