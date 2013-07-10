@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe AfterDo do
   let(:dummy_instance) {@dummy_class.new}
-  let(:mockie) {mock}
+  let(:mockie) {double}
 
   before :each do
     redefine_dummy_class
@@ -51,9 +51,9 @@ describe AfterDo do
 
   it 'can add multiple call backs' do
     mockie.should_receive :call_method
-    mock2 = mock
+    mock2 = double
     mock2.should_receive :call_another_method
-    mock3 = mock
+    mock3 = double
     mock3.should_receive :bla
     @dummy_class.after :zero do mockie.call_method end
     @dummy_class.after :zero do mock2.call_another_method end
