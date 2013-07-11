@@ -1,12 +1,8 @@
-require File.expand_path('../../lib/after_do', __FILE__)
+require 'after_do'
 
 class Dog
   def bark
     puts 'Woooof'
-  end
-
-  def eat
-    puts 'yummie!'
   end
 end
 
@@ -17,5 +13,4 @@ dog = Dog.new
 dog2 = Dog.new
 
 dog.bark
-dog.eat
 dog2.bark
