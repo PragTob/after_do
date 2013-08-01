@@ -76,6 +76,10 @@ Always depends on what you are doing with it. As many things out there it has it
 - You lose clarity. With this gem it is not immediately visible what happens when a method is called as some behavior might be defined elsewhere.
 - You could use this to modify the behaviour of classes everywhere. Don't. Use it for what it is meant to be used for - a concern that is not the primary concern of the class you are adding the callback to but that class is still involved with.
 
+## Does it work with Ruby interpreter x?
+
+Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with MRI 1.9.3, 2.0, the latest jruby and rubinius releases in 1.9 mode. So in short, this should work with all of them and is aimed at doing so :-)
+
 ## Is there a before method?
 
 No not yet, I didn't have a use case for it yet. If you have one please let me know, it is relatively easy to add.
