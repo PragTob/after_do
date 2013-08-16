@@ -68,6 +68,12 @@ describe AfterDo do
     dummy_instance.zero
   end
 
+  it 'throws an error when you try to add a hook to a non existing method' do
+    expect do
+      @dummy_class.after :non_existing_method do ; end
+    end.to raise_error(NonExistingMethodError)
+  end
+
   describe 'with parameters' do
 
     before :each do
