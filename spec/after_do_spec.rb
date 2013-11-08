@@ -32,7 +32,7 @@ describe AfterDo do
     end
 
     it 'calls a method on the injected mockie' do
-      @dummy_class.send callback_adder,  :zero do mockie.call_method end
+      @dummy_class.send callback_adder, :zero do mockie.call_method end
       mockie.should_receive :call_method
       dummy_instance.zero
     end
@@ -224,5 +224,5 @@ describe AfterDo do
   end
 
   it_behaves_like 'calling callbacks', :after
-
+  it_behaves_like 'calling callbacks', :before
 end

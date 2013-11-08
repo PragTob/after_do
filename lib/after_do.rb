@@ -6,32 +6,26 @@ module AfterDo
   ALIAS_PREFIX = '__after_do_orig_'
 
   def _after_do_callbacks
-    @_after_do_callbacks || Hash.new([])
+    @_after_do_callbacks || _after_do_basic_hash
   end
 
   def after(*methods, &block)
-    @_after_do_callbacks ||= Hash.new([])
-    methods.flatten! #in case someone used an Array
-    if methods.empty?
-      raise ArgumentError, 'after takes at least one method name!'
-    end
-    methods.each do |method|
-      if _after_do_method_already_renamed?(method)
-        _after_do_make_after_do_version_of_method(method)
-      end
-      @_after_do_callbacks[method] << block
-    end
+    _after_do_define_callback(:after, methods, block)
+  end
+
+  def before(*methods, &block)
+    _after_do_define_callback(:before, methods, block)
   end
 
   def remove_all_callbacks
-    @_after_do_callbacks = Hash.new([]) if @_after_do_callbacks
+    @_after_do_callbacks = _after_do_basic_hash if @_after_do_callbacks
   end
 
-  def _after_do_execute_callbacks_for(method, instance, *args)
+  def _after_do_execute_callbacks(type, method, instance, *args)
     current_class = self
     while current_class.method_defined? method
       if current_class.respond_to? :_after_do_callbacks
-        current_class._after_do_callbacks[method].each do |block|
+        current_class._after_do_callbacks[type].fetch(method, []).each do |block|
           execute_callback(block, instance, method, *args)
         end
       end
@@ -40,9 +34,28 @@ module AfterDo
   end
 
   private
+  def _after_do_define_callback(type, methods, block)
+    @_after_do_callbacks ||= _after_do_basic_hash
+    methods.flatten! #in case someone used an Array
+    if methods.empty?
+      raise ArgumentError, "#{type} takes at least one method name!"
+    end
+    methods.each do |method|
+      unless _after_do_method_already_renamed?(method)
+        _after_do_make_after_do_version_of_method(method)
+      end
+      @_after_do_callbacks[type][method] << block
+    end
+  end
+
+  def _after_do_basic_hash
+    {before: {}, after: {}}#Hash.new(Hash.new([]))
+  end
+
   def _after_do_make_after_do_version_of_method(method)
     _after_do_raise_no_method_error(method) unless self.method_defined? method
-    @_after_do_callbacks[method] = []
+    @_after_do_callbacks[:before][method] = []
+    @_after_do_callbacks[:after][method] = []
     alias_name = _after_do_aliased_name method
     _after_do_rename_old_method(method, alias_name)
     _after_do_redefine_method_with_callback(method, alias_name)
@@ -67,15 +80,16 @@ module AfterDo
   def _after_do_redefine_method_with_callback(method, alias_name)
     class_eval do
       define_method method do |*args|
+        self.class._after_do_execute_callbacks :before, method, self, *args
         return_value = send(alias_name, *args)
-        self.class._after_do_execute_callbacks_for method, self, *args
+        self.class._after_do_execute_callbacks :after, method, self, *args
         return_value
       end
     end
   end
 
   def _after_do_method_already_renamed?(method)
-    !private_method_defined? _after_do_aliased_name(method)
+    private_method_defined? _after_do_aliased_name(method)
   end
 
   def execute_callback(block, instance, method, *args)
