@@ -20,21 +20,19 @@ module AfterDo
   end
 
   def remove_all_callbacks
-    if @@_after_do_callbacks
-      @@_after_do_callbacks.keys.each do |key| @@_after_do_callbacks[key] = [] end
-    end
+    @@_after_do_callbacks = Hash.new([]) if @@_after_do_callbacks
   end
 
   private
   def _after_do_make_after_do_version_of_method(method)
-    raise_no_method_error(method) unless self.method_defined? method
+    _after_do_raise_no_method_error(method) unless self.method_defined? method
     @@_after_do_callbacks[method] = []
     alias_name = _after_do_aliased_name method
     _after_do_rename_old_method(method, alias_name)
     _after_do_redefine_method_with_callback(method, alias_name)
   end
 
-  def raise_no_method_error method
+  def _after_do_raise_no_method_error method
     raise NonExistingMethodError, "There is no method #{method} on #{self} to attach a block to with AfterDo"
   end
 
