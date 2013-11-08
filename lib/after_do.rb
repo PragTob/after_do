@@ -25,7 +25,7 @@ module AfterDo
     @_after_do_callbacks = Hash.new([]) if @_after_do_callbacks
   end
 
-  def _after_do_execute_callbacks_for(method, *args, instance)
+  def _after_do_execute_callbacks_for(method, instance, *args)
     current_class = self
     while current_class.method_defined? method
       if current_class.respond_to? :_after_do_callbacks
@@ -65,7 +65,7 @@ module AfterDo
     class_eval do
       define_method method do |*args|
         return_value = send(alias_name, *args)
-        self.class._after_do_execute_callbacks_for method, *args, self
+        self.class._after_do_execute_callbacks_for method, self, *args
         return_value
       end
     end
