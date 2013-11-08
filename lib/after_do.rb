@@ -1,6 +1,8 @@
-class NonExistingMethodError < StandardError ; end
-
 module AfterDo
+
+  class NonExistingMethodError < StandardError ; end
+  class CallbackError < StandardError ; end
+
   ALIAS_PREFIX = '__after_do_orig_'
 
   def _after_do_callbacks
@@ -30,7 +32,7 @@ module AfterDo
     while current_class.method_defined? method
       if current_class.respond_to? :_after_do_callbacks
         current_class._after_do_callbacks[method].each do |block|
-          block. call *args, instance
+          execute_callback(block, instance, method, *args)
         end
       end
       current_class = current_class.superclass
@@ -47,7 +49,8 @@ module AfterDo
   end
 
   def _after_do_raise_no_method_error(method)
-    raise NonExistingMethodError, "There is no method #{method} on #{self} to attach a block to with AfterDo"
+    raise NonExistingMethodError,
+          "There is no method #{method} on #{self} to attach a block to with AfterDo"
   end
 
   def _after_do_aliased_name(symbol)
@@ -73,5 +76,13 @@ module AfterDo
 
   def _after_do_method_already_renamed?(method)
     !private_method_defined? _after_do_aliased_name(method)
+  end
+
+  def execute_callback(block, instance, method, *args)
+    begin
+      block.call *args, instance
+    rescue Exception => error
+      raise CallbackError, "A callback block for method #{method} on the instance #{instance} with the following arguments: #{args.join(', ')} defined in the file #{block.source_location[0]} in line #{block.source_location[1]} resulted in the following error: #{error.class}: #{error.message} and this backtrace:\n #{error.backtrace.join("\n")}"
+    end
   end
 end

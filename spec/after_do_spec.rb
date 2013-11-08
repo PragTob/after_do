@@ -68,10 +68,45 @@ describe AfterDo do
     dummy_instance.zero
   end
 
-  it 'throws an error when you try to add a hook to a non existing method' do
-    expect do
-      @dummy_class.after :non_existing_method do ; end
-    end.to raise_error(NonExistingMethodError)
+  describe 'errors' do
+    it 'throws an error when you try to add a hook to a non existing method' do
+      expect do
+        @dummy_class.after :non_existing_method do ; end
+      end.to raise_error(AfterDo::NonExistingMethodError)
+    end
+
+    describe 'errors in callbacks' do
+
+      def expect_call_back_error(matcher = nil)
+        expect do
+          dummy_instance.zero
+        end.to raise_error AfterDo::CallbackError, matcher
+      end
+
+      before :each do
+        @dummy_class.after :zero do raise StandardError, 'silly message' end
+      end
+
+      it 'raises a CallbackError' do
+        expect_call_back_error
+      end
+
+      it 'mentions the error raised' do
+        expect_call_back_error /StandardError/
+      end
+
+      it 'mentions the method called' do
+        expect_call_back_error /zero/
+      end
+
+      it 'mentions the file the error was raised in' do
+        expect_call_back_error Regexp.new __FILE__
+      end
+
+      it 'mentions the original error message' do
+        expect_call_back_error /silly message/
+      end
+    end
   end
 
   describe 'with parameters' do
