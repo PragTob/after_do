@@ -146,4 +146,26 @@ describe AfterDo do
       dummy_instance.two 1, 2
     end
   end
+
+  describe 'inheritance' do
+    let(:inherited_instance) {@inherited_class.new}
+
+    before :each do
+      define_inherited_class
+    end
+
+    def define_inherited_class
+      @inherited_class = Class.new @dummy_class
+    end
+
+    it 'class knows about the after method' do
+      @inherited_class.should respond_to :after
+    end
+
+    it 'works when we have a callback on the parent class' do
+      mockie.should_receive :call
+      @dummy_class.after :zero do mockie.call end
+      inherited_instance.zero
+    end
+  end
 end
