@@ -46,7 +46,7 @@ module AfterDo
     _after_do_redefine_method_with_callback(method, alias_name)
   end
 
-  def _after_do_raise_no_method_error method
+  def _after_do_raise_no_method_error(method)
     raise NonExistingMethodError, "There is no method #{method} on #{self} to attach a block to with AfterDo"
   end
 
