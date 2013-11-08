@@ -4,6 +4,8 @@ module AfterDo
   ALIAS_PREFIX = '__after_do_orig_'
 
   def after(*methods, &block)
+    # Yes I know omg class variables, but I want callbacks to work across
+    # subclasses. Suggestions welcome. See 9926bc859930a for more
     @@_after_do_callbacks ||= Hash.new([])
     methods.flatten! #in case someone used an Array
     if methods.empty?
