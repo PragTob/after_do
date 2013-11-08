@@ -162,10 +162,27 @@ describe AfterDo do
       @inherited_class.should respond_to :after
     end
 
-    it 'works when we have a callback on the parent class' do
-      mockie.should_receive :call
-      @dummy_class.after :zero do mockie.call end
-      inherited_instance.zero
+    describe 'callback on parent class' do
+      before :each do
+        @dummy_class.after :zero do mockie.call end
+      end
+
+      it 'works when we have a callback on the parent class' do
+        mockie.should_receive :call
+        inherited_instance.zero
+      end
+
+      it 'remove_callbacks does not remove the callbacks on parent class' do
+        mockie.should_receive :call
+        @inherited_class.remove_all_callbacks
+        inherited_instance.zero
+      end
+
+      it 'remove_callbacks on the parent does remove the callbacks' do
+        mockie.should_not_receive :call
+        @dummy_class.remove_all_callbacks
+        inherited_instance.zero
+      end
     end
   end
 end
