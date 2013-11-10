@@ -2,31 +2,31 @@ require 'spec_helper'
 
 describe AfterDo do
 
-  shared_examples_for 'calling callbacks' do |callback_adder|
-    let(:dummy_instance) {@dummy_class.new}
-    let(:mockie) {double}
+  let(:dummy_instance) {@dummy_class.new}
+  let(:mockie) {double}
 
-    before :each do
-      redefine_dummy_class
-    end
+  before :each do
+    redefine_dummy_class
+  end
 
-    def redefine_dummy_class
-      @dummy_class = Class.new do
-        extend AfterDo
-        def zero
-          0
-        end
+  def redefine_dummy_class
+    @dummy_class = Class.new do
+      extend AfterDo
+      def zero
+        0
+      end
 
-        def one(param)
-          param
-        end
+      def one(param)
+        param
+      end
 
-        def two(param1, param2)
-          param2
-        end
+      def two(param1, param2)
+        param2
       end
     end
+  end
 
+  shared_examples_for 'calling callbacks' do |callback_adder|
     it 'responds to before/after' do
       @dummy_class.should respond_to callback_adder
     end
@@ -200,7 +200,7 @@ describe AfterDo do
 
       describe 'callback on parent class' do
         before :each do
-          @dummy_class.send callback_adder,  :zero do mockie.call end
+          @dummy_class.send callback_adder, :zero do mockie.call end
         end
 
         it 'works when we have a callback on the parent class' do
@@ -225,4 +225,29 @@ describe AfterDo do
 
   it_behaves_like 'calling callbacks', :after
   it_behaves_like 'calling callbacks', :before
+
+  describe 'before and after behaviour' do
+    let(:callback){double 'callback', before_call: nil, after_call: nil}
+
+    before :each do
+      @dummy_class.before :zero do callback.before_call end
+      @dummy_class.after :zero do callback.after_call end
+    end
+
+    it 'calls the before callback' do
+      callback.should_receive :before_call
+      dummy_instance.zero
+    end
+
+    it 'calls the after callback' do
+      callback.should_receive :after_call
+      dummy_instance.zero
+    end
+
+    it 'receives the calls in the right order' do
+      callback.should_receive(:before_call).ordered
+      callback.should_receive(:after_call).ordered
+      dummy_instance.zero
+    end
+  end
 end
