@@ -61,6 +61,12 @@ end
 
 Doesn't that seem a lot drier then calling some save method manually after each of those in addition to separating the concerns?
 
+## Is there a before method?
+
+Yes. It works just like the `after` method, but the callbacks are executed before the original method is called. You can also mix and match before and after calls.
+
+Before for me is a far less common use case, that's why it was only added later (in the 0.2 release).
+
 ## Is this a good idea?
 
 Always depends on what you are doing with it. As many things out there it has its use cases but can easily be misused.
@@ -79,12 +85,6 @@ Always depends on what you are doing with it. As many things out there it has it
 ## Does it work with Ruby interpreter X?
 
 Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with MRI 1.9.3, 2.0, the latest jruby and rubinius releases in 1.9 mode. So in short, this should work with all of them and is aimed at doing so :-)
-
-## Is there a before method?
-
-Yes. It works just like the `after` method, but the callbacks are executed before the original method is called. You can also mix and match before and after calls.
-
-Before for me is a far less common use case, that's why it was only added later (in the 0.2 release).
 
 ## Contributing
 
