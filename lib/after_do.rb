@@ -37,19 +37,25 @@ module AfterDo
   def _after_do_define_callback(type, methods, block)
     @_after_do_callbacks ||= _after_do_basic_hash
     methods.flatten! #in case someone used an Array
-    if methods.empty?
-      raise ArgumentError, "#{type} takes at least one method name!"
-    end
+    _after_do_raise_no_method_specified(type) if methods.empty?
     methods.each do |method|
-      unless _after_do_method_already_renamed?(method)
-        _after_do_make_after_do_version_of_method(method)
-      end
-      @_after_do_callbacks[type][method] << block
+      _after_do_add_callback_to_method(type, method, block)
     end
   end
 
+  def _after_do_raise_no_method_specified(type)
+    raise ArgumentError, "#{type} takes at least one method name!"
+  end
+
   def _after_do_basic_hash
-    {before: {}, after: {}}#Hash.new(Hash.new([]))
+    {before: {}, after: {}}
+  end
+
+  def _after_do_add_callback_to_method(type, method, block)
+    unless _after_do_method_already_renamed?(method)
+      _after_do_make_after_do_version_of_method(method)
+    end
+    @_after_do_callbacks[type][method] << block
   end
 
   def _after_do_make_after_do_version_of_method(method)
