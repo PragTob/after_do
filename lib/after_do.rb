@@ -59,7 +59,7 @@ module AfterDo
   end
 
   def _after_do_make_after_do_version_of_method(method)
-    _after_do_raise_no_method_error(method) unless self.method_defined? method
+    _after_do_raise_no_method_error(method) unless method_defined? method
     @_after_do_callbacks[:before][method] = []
     @_after_do_callbacks[:after][method] = []
     alias_name = _after_do_aliased_name method
