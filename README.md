@@ -26,7 +26,7 @@ Or install it yourself as:
 
 ## Usage
 
-This section is dedicated to show of the general usage and effects of AfterDo. You can also check out the samples directory for some samples.
+This section is dedicated to show of the general usage and effects of AfterDo. You can also check out the samples directory for some samples or the specs in the spec folder.
 
 ### General usage
 
