@@ -221,28 +221,6 @@ describe AfterDo do
         end
       end
     end
-
-    describe 'included modules' do
-      def redefine_dummy_module
-        @dummy_module = Module.new do
-          def module_method
-            'module'
-          end
-        end
-      end
-
-      before :each do
-        redefine_dummy_module
-        @dummy_class.send(:include, @dummy_module)
-        @dummy_module.extend AfterDo
-        @dummy_module.send callback_adder, :module_method do mockie.call end
-      end
-
-      it 'executes callbacks from methods of included modules' do
-        mockie.should_receive :call
-        dummy_instance.module_method
-      end
-    end
   end
 
   it_behaves_like 'calling callbacks', :after
