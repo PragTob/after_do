@@ -163,6 +163,17 @@ end
 
 Doesn't that seem a lot drier then calling some save method manually after each of those in addition to separating the concerns?
 
+### Attaching multiple callbacks to the same method
+
+A method can have as many callbacks as a Ruby Array can handle (although I do not recommend you to have many callbacks around). So this works perfectly fine:
+
+```ruby
+MyClass.after :method do something end
+MyClass.after :method do another_thing end
+```
+
+The callbacks are executed in the order in which they were added.
+
 ### Working with inheritance
 
 AfterDo also works with inheritance. E.g. if you attach a callback to a method in a super class and that method is called in a sub class the callback is still executed.
