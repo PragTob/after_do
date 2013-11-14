@@ -242,6 +242,12 @@ m.value = 'new value'
 # after: new value
 ```
 
+### Method granularity
+
+AfterDo works on the granularity of methods. That means that you can only attach callbacks to methods. This is no problem however, since if it's your code you can always define new methods. E.g. you want to attach callbacks to the end of some operation that happens in the middle of a method just define a new method for that piece of code.
+
+I sometimes do this for evaluating the block, as I want to do something when that block finished evaluating so I define a method `eval_block` wherein I just evaluate the block.
+
 ## Is this a good idea?
 
 Always depends on what you are doing with it. As many things out there it has its use cases but can easily be misused.
