@@ -111,6 +111,13 @@ You can remove all callbacks you added to a class by doing:
 MyClass.remove_all_callbacks
 ```
 
+### Errors
+
+There are some custom errors that AfterDo throws. When you try to add a callback to a method which that class does not understand it will throw `AfterDo::NonExistingMethodError`.
+
+When an error occurs during one of the callbacks that are attached to a method it will throw `AfterDo::CallbackError` with information about the original error and where the block/callback causing this error was defined to help pinpoint the error.
+
+
 ## Is there a before method?
 
 Yes. It works just like the `after` method, but the callbacks are executed before the original method is called. You can also mix and match before and after calls.
