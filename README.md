@@ -218,6 +218,30 @@ Yes. It works just like the `after` method, but the callbacks are executed befor
 
 Before for me is a far less common use case, that's why it was only added later (in the 0.2 release).
 
+Here is a small sample:
+
+```ruby
+require 'after_do'
+
+class MyClass
+  attr_accessor :value
+end
+
+MyClass.extend AfterDo
+MyClass.after :value= do |*, obj| puts 'after: ' + obj.value.to_s end
+MyClass.before :value= do |*, obj| puts 'before: ' + obj.value.to_s end
+
+m = MyClass.new
+m.value = 'Hello'
+m.value = 'new value'
+
+# Output is:
+# before:
+# after: Hello
+# before: Hello
+# after: new value
+```
+
 ## Is this a good idea?
 
 Always depends on what you are doing with it. As many things out there it has its use cases but can easily be misused.
