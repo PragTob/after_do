@@ -76,6 +76,66 @@ return_value
 
 To do this some helper methods are defined in the AfterDo module. As classes have to extend the AfterDo module all the methods that you are not supposed to call yourself are prefixed with `_after_do_` to minimize the risk of method name clashes. The only not prefixed method are `after`, `before` and `remove_all_callbacks`.
 
+### Getting a hold of the method arguments and the object
+
+With AfterDo both the arguments to the method you are attaching the callback to and the object for which the callback is executed are passed into the callback block.
+
+So if you have a method that takes two arguments you can get those like this:
+
+```ruby
+MyClass.after :two_arg_method do |argument_one, argument_2| something end
+```
+
+The object itself is passed in as the last block argument, so if you just care about the object you can do:
+
+```ruby
+MyClass.after :two_arg_method do |*, obj| fancy_stuff(obj) something end
+```
+
+Of course you can get a hold of the method arguments and the object:
+
+```ruby
+MyClass.after :two_arg_method do |arg1, arg2, obj| something(arg1, arg2, obj) end
+```
+
+If you do not want to get a hold of the method arguments or the object, then you can just don't care about the block parameters :-)
+
+Here is an example showcasing all of these:
+
+```ruby
+class Example
+  def zero
+    # ...
+  end
+
+  def two(a, b)
+    # ...
+  end
+
+  def value
+    'some value'
+  end
+end
+
+Example.extend AfterDo
+
+Example.after :zero do puts 'Hello!' end
+Example.after :zero do |obj| puts obj.value end
+Example.after :two do |first, second| puts first + ' ' + second end
+Example.after :two do |a, b, obj| puts a + ' ' + b + ' ' + obj.value end
+Example.after :two do |*, obj| puts 'just ' +  obj.value end
+
+e = Example.new
+e.zero
+e.two 'one', 'two'
+# prints:
+# Hello!
+# some value
+# one two
+# one two some value
+# just some value
+```
+
 ### Attaching a callback to multiple methods
 
 In AfterDo you can attach a callback to multiple methods by just listing them:
