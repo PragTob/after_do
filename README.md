@@ -1,8 +1,12 @@
 # AfterDo [![Gem Version](https://badge.fury.io/rb/after_do.png)](http://badge.fury.io/rb/after_do)[![Build Status](https://travis-ci.org/PragTob/after_do.png?branch=master)](https://travis-ci.org/PragTob/after_do)[![Code Climate](https://codeclimate.com/github/PragTob/after_do.png)](https://codeclimate.com/github/PragTob/after_do)[![Coverage Status](https://coveralls.io/repos/PragTob/after_do/badge.png)](https://coveralls.io/r/PragTob/after_do)
 
-AfterDo is simple gem, that allows you to execute a specified block after specified method of a class are called. If the class extends `AfterDo` you can simply do this by `MyClass.after :some_method do puts 'whatever you want?' end`
+AfterDo is simple gem, that allows you to execute a specified block after specified method of a class are called. If the class extends `AfterDo` you can simply do this by
 
-This shall not be done to alter behavior but rather to fight cross-cutting concerns such as logging. E.g. with logging you litter all your code wit logging statements - that concern is spread over many files. With AfterDo you could put all the logging in one file.
+```
+MyClass.after :some_method do whatever_you_want end
+```
+
+This should generally not be done to alter behavior of the class and its instances but rather to fight cross-cutting concerns such as logging. E.g. with logging you litter all your code with logging statements - that concern is spread over many files. With AfterDo you could put all the logging in one file.
 
 AfterDo has no external runtime dependencies and the code is not even 120 lines of code (blank lines included) with lots of small methods. So simplecov reports there are not even 70 relevant lines.
 
@@ -22,7 +26,18 @@ Or install it yourself as:
 
 ## Usage
 
-With AfterDo you can do simple things like putting something out every time a method is called as in this example:
+This section is dedicated to show of the general usage and effects of AfterDo. You can also check out the samples directory for some samples.
+
+### General usage
+
+In order to use AfterDo the class/module you want to use it with first has to extend the `AfterDo` module. You can do this right in the class definition or afterwards like this: `MyClass.extend AfterDo`.
+With this setup you can add a callback to `method` like this:
+
+```ruby
+MyClass.after :method do magic end
+```
+
+With AfterDo you can do simple things like printing something out every time a method is called as in this example:
 
 ```ruby
 class Dog
@@ -48,7 +63,34 @@ dog2.bark
 
 ```
 
-As another example: If you have an activity and want the activity to be saved every time you change it, but you don't want to mix that persistence concern with what the activity actually does you could do something like this:
+### How does it work?
+
+When you attach a callback to a method with AfterDo what it basically does is it creates a copy of that method and then redefines the method to basically look like this (pseudo code):
+
+```ruby
+execute_before_callbacks
+return_value = original_method
+execute_after_callbacks
+return_value
+```
+
+To do this some helper methods are defined in the AfterDo module. As classes have to extend the AfterDo module all the methods that you are not supposed to call yourself are prefixed with `_after_do_` to minimize the risk of method name clashes. The only not prefixed method are `after`, `before` and `remove_all_callbacks`.
+
+### Attaching a callback to multiple methods
+
+In AfterDo you can attach a callback to multiple methods by just listing them:
+
+```ruby
+SomeClass.after :one_method, :another_method do something end
+```
+
+Or you could pass in an Array of method names:
+
+```ruby
+SomeClass.after [:one_method, :another_method] do something end
+```
+
+So for example if you have an activity and want the activity to be saved every time you change it, but you don't want to mix that persistence concern with what the activity actually does you could do something like this:
 
 ```ruby
 persistor  = FilePersistor.new
@@ -60,6 +102,14 @@ end
 ```
 
 Doesn't that seem a lot drier then calling some save method manually after each of those in addition to separating the concerns?
+
+### Removing callbacks
+
+You can remove all callbacks you added to a class by doing:
+
+```ruby
+MyClass.remove_all_callbacks
+```
 
 ## Is there a before method?
 
