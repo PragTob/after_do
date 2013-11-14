@@ -1,13 +1,14 @@
 module AfterDo
 
   def self.extended(klazz)
-    klazz.send(:extend, AfterDo::Base)
+    klazz.send(:include, AfterDo::Instance)
+    klazz.send(:extend, AfterDo::Class)
   end
 
   class NonExistingMethodError < StandardError ; end
   class CallbackError < StandardError ; end
 
-  module Base
+  module Class
     ALIAS_PREFIX = '__after_do_orig_'
 
     def _after_do_callbacks
@@ -24,17 +25,6 @@ module AfterDo
 
     def remove_all_callbacks
       @_after_do_callbacks = _after_do_basic_hash if @_after_do_callbacks
-    end
-
-    def _after_do_execute_callbacks(type, method, instance, *args)
-      callback_classes = ancestors.select do |klazz|
-        _after_do_has_callback_for?(klazz, type, method)
-      end
-      callback_classes.each do |klazz|
-        klazz._after_do_callbacks[type][method].each do |block|
-          _after_do_execute_callback(block, instance, method, *args)
-        end
-      end
     end
 
     private
@@ -89,9 +79,9 @@ module AfterDo
     def _after_do_redefine_method_with_callback(method, alias_name)
       class_eval do
         define_method method do |*args|
-          self.class._after_do_execute_callbacks :before, method, self, *args
+          _after_do_execute_callbacks :before, method, *args
           return_value = send(alias_name, *args)
-          self.class._after_do_execute_callbacks :after, method, self, *args
+          _after_do_execute_callbacks :after, method, *args
           return_value
         end
       end
@@ -100,18 +90,35 @@ module AfterDo
     def _after_do_method_already_renamed?(method)
       private_method_defined? _after_do_aliased_name(method)
     end
+  end
+
+  module Instance
+    def _after_do_execute_callbacks(type, method, *args)
+      callback_classes = self.class.ancestors.select do |klazz|
+        _after_do_has_callback_for?(klazz, type, method)
+      end
+      callback_classes.each do |klazz|
+        klazz._after_do_callbacks[type][method].each do |block|
+          _after_do_execute_callback(block, method, *args)
+        end
+      end
+    end
 
     def _after_do_has_callback_for?(klazz, type, method)
       klazz.respond_to?(:_after_do_callbacks) &&
-      klazz._after_do_callbacks[type][method]
+        klazz._after_do_callbacks[type][method]
     end
 
-    def _after_do_execute_callback(block, instance, method, *args)
+    def _after_do_execute_callback(block, method, *args)
       begin
-        block.call *args, instance
+        block.call *args, self
       rescue Exception => error
-        raise CallbackError, "A callback block for method #{method} on the instance #{instance} with the following arguments: #{args.join(', ')} defined in the file #{block.source_location[0]} in line #{block.source_location[1]} resulted in the following error: #{error.class}: #{error.message} and this backtrace:\n #{error.backtrace.join("\n")}"
+        raise CallbackError, "A callback block for method #{method} on the instance #{self} with the following arguments: #{args.join(', ')} defined in the file #{block.source_location[0]} in line #{block.source_location[1]} resulted in the following error: #{error.class}: #{error.message} and this backtrace:\n #{error.backtrace.join("\n")}"
       end
+    end
+
+    def a
+      puts 'yolooo'
     end
   end
 end
