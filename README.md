@@ -2,9 +2,9 @@
 
 AfterDo is simple gem, that allows you to execute a specified block after specified method of a class are called. If the class extends `AfterDo` you can simply do this by `MyClass.after :some_method do puts 'whatever you want?' end`
 
-This shall not be done to to alter behavior or something but rather to fight cross-cutting concerns such as logging. E.g. with logging you litter all your code wit logging statements - that concern is spread over many files. With AfterDo you could put all the logging in one file.
+This shall not be done to alter behavior but rather to fight cross-cutting concerns such as logging. E.g. with logging you litter all your code wit logging statements - that concern is spread over many files. With AfterDo you could put all the logging in one file.
 
-AfterDo has no external runtime dependencies and the code is just a bit more than 60 lines (blank lines included).
+AfterDo has no external runtime dependencies and the code is not even 120 lines of code (blank lines included) with lots of small methods. So simplecov reports there are not even 70 relevant lines.
 
 ## Installation
 
@@ -22,7 +22,7 @@ Or install it yourself as:
 
 ## Usage
 
-With AfterDo you can do simple things like putting something out everything a method is called as in this example:
+With AfterDo you can do simple things like putting something out every time a method is called as in this example:
 
 ```ruby
 class Dog
@@ -48,7 +48,7 @@ dog2.bark
 
 ```
 
-As another example: If you have an activity and want to activity to be saved every time you change it, but you don't want to mix that persistence concern with what the activity actually does you could do something like this:
+As another example: If you have an activity and want the activity to be saved every time you change it, but you don't want to mix that persistence concern with what the activity actually does you could do something like this:
 
 ```ruby
 persistor  = FilePersistor.new
@@ -76,13 +76,15 @@ Always depends on what you are doing with it. As many things out there it has it
 - You lose clarity. With this gem it is not immediately visible what happens when a method is called as some behavior might be defined elsewhere.
 - You could use this to modify the behaviour of classes everywhere. Don't. Use it for what it is meant to be used for - a concern that is not the primary concern of the class you are adding the callback to but that class is still involved with.
 
-## Does it work with Ruby interpreter x?
+## Does it work with Ruby interpreter X?
 
 Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with MRI 1.9.3, 2.0, the latest jruby and rubinius releases in 1.9 mode. So in short, this should work with all of them and is aimed at doing so :-)
 
 ## Is there a before method?
 
-No not yet, I didn't have a use case for it yet. If you have one please let me know, it is relatively easy to add.
+Yes. It works just like the `after` method, but the callbacks are executed before the original method is called. You can also mix and match before and after calls.
+
+Before for me is a far less common use case, that's why it was only added later (in the 0.2 release).
 
 ## Contributing
 
