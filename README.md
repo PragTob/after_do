@@ -230,8 +230,10 @@ Always depends on what you are doing with it. As many things out there it has it
 
 ### Drawbacks
 
-- You lose clarity. With this gem it is not immediately visible what happens when a method is called as some behavior might be defined elsewhere.
+- You lose clarity. With callbacks after a method it is not immediately visible what happens when a method is called as some behavior might be defined elsewhere.
 - You could use this to modify the behaviour of classes everywhere. Don't. Use it for what it is meant to be used for - a concern that is not the primary concern of the class you are adding the callback to but that class is still involved with.
+
+A use case I feel this is particularly made for is redrawing. That's what we use it for over at [shoes4](https://github.com/shoes/shoes4). E.g. we have multiple objects and different actions on these objects may trigger a redraw (such changing the position of a circle). This concern could be littered all over the code base. Or nicely packed into one file where you don't repeat yourself for similar redrawing scenarios and you see all the redraws at one glance. Furthermore it makes it easier to do things like "Just do one redraw every 1/30s" (not yet implemented).
 
 ## Does it work with Ruby interpreter X?
 
