@@ -103,6 +103,29 @@ end
 
 Doesn't that seem a lot drier then calling some save method manually after each of those in addition to separating the concerns?
 
+### Working with inheritance
+
+AfterDo also works with inheritance. E.g. if you attach a callback to a method in a super class and that method is called in a sub class the callback is still executed.
+
+See this sample:
+
+```ruby
+class A
+  def a
+    # ...
+  end
+end
+
+class B < A
+end
+
+A.extend AfterDo
+A.after :a do puts 'a was called' end
+
+b = B.new
+b.a #prints out: a was called
+```
+
 ### Removing callbacks
 
 You can remove all callbacks you added to a class by doing:
