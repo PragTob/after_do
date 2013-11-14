@@ -1,4 +1,5 @@
 module AfterDo
+  ALIAS_PREFIX = '__after_do_orig_'
 
   def self.extended(klazz)
     klazz.send(:include, AfterDo::Instance)
@@ -9,7 +10,6 @@ module AfterDo
   class CallbackError < StandardError ; end
 
   module Class
-    ALIAS_PREFIX = '__after_do_orig_'
 
     def _after_do_callbacks
       @_after_do_callbacks || _after_do_basic_hash

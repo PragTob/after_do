@@ -46,7 +46,7 @@ describe AfterDo do
 
     it 'marks the copied method as private' do
       @dummy_class.send callback_adder,  :zero do end
-      copied_method_name = (AfterDo::Base::ALIAS_PREFIX + 'zero').to_sym
+      copied_method_name = (AfterDo::ALIAS_PREFIX + 'zero').to_sym
       dummy_instance.respond_to?(copied_method_name).should be_false
     end
 
