@@ -26,7 +26,7 @@ module AfterDo
     while current_class.method_defined? method
       if current_class.respond_to? :_after_do_callbacks
         current_class._after_do_callbacks[type].fetch(method, []).each do |block|
-          execute_callback(block, instance, method, *args)
+          _after_do_execute_callback(block, instance, method, *args)
         end
       end
       current_class = current_class.superclass
@@ -98,7 +98,7 @@ module AfterDo
     private_method_defined? _after_do_aliased_name(method)
   end
 
-  def execute_callback(block, instance, method, *args)
+  def _after_do_execute_callback(block, instance, method, *args)
     begin
       block.call *args, instance
     rescue Exception => error
