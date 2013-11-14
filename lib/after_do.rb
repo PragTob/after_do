@@ -22,14 +22,13 @@ module AfterDo
   end
 
   def _after_do_execute_callbacks(type, method, instance, *args)
-    current_class = self
-    while current_class.method_defined? method
-      if current_class.respond_to? :_after_do_callbacks
-        current_class._after_do_callbacks[type].fetch(method, []).each do |block|
-          _after_do_execute_callback(block, instance, method, *args)
-        end
+    callback_classes = ancestors.select do |klazz|
+      _after_do_has_callback_for?(klazz, type, method)
+    end
+    callback_classes.each do |klazz|
+      klazz._after_do_callbacks[type][method].each do |block|
+        _after_do_execute_callback(block, instance, method, *args)
       end
-      current_class = current_class.superclass
     end
   end
 
@@ -96,6 +95,11 @@ module AfterDo
 
   def _after_do_method_already_renamed?(method)
     private_method_defined? _after_do_aliased_name(method)
+  end
+
+  def _after_do_has_callback_for?(klazz, type, method)
+    klazz.respond_to?(:_after_do_callbacks) &&
+    klazz._after_do_callbacks[type][method]
   end
 
   def _after_do_execute_callback(block, instance, method, *args)
