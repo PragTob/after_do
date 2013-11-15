@@ -116,9 +116,5 @@ module AfterDo
         raise CallbackError, "A callback block for method #{method} on the instance #{self} with the following arguments: #{args.join(', ')} defined in the file #{block.source_location[0]} in line #{block.source_location[1]} resulted in the following error: #{error.class}: #{error.message} and this backtrace:\n #{error.backtrace.join("\n")}"
       end
     end
-
-    def a
-      puts 'yolooo'
-    end
   end
 end

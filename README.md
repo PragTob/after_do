@@ -27,7 +27,7 @@ Or install it yourself as:
 
 ## Usage
 
-This section is dedicated to show of the general usage and effects of AfterDo. You can also check out the samples directory for some samples.
+This section is dedicated to show of the general usage and effects of AfterDo. You can also check out the samples directory for some samples or the specs in the spec folder.
 
 ### General usage
 
@@ -77,6 +77,66 @@ return_value
 
 To do this some helper methods are defined in the AfterDo module. As classes have to extend the AfterDo module all the methods that you are not supposed to call yourself are prefixed with `_after_do_` to minimize the risk of method name clashes. The only not prefixed method are `after`, `before` and `remove_all_callbacks`.
 
+### Getting a hold of the method arguments and the object
+
+With AfterDo both the arguments to the method you are attaching the callback to and the object for which the callback is executed are passed into the callback block.
+
+So if you have a method that takes two arguments you can get those like this:
+
+```ruby
+MyClass.after :two_arg_method do |argument_one, argument_2| something end
+```
+
+The object itself is passed in as the last block argument, so if you just care about the object you can do:
+
+```ruby
+MyClass.after :two_arg_method do |*, obj| fancy_stuff(obj) something end
+```
+
+Of course you can get a hold of the method arguments and the object:
+
+```ruby
+MyClass.after :two_arg_method do |arg1, arg2, obj| something(arg1, arg2, obj) end
+```
+
+If you do not want to get a hold of the method arguments or the object, then you can just don't care about the block parameters :-)
+
+Here is an example showcasing all of these:
+
+```ruby
+class Example
+  def zero
+    # ...
+  end
+
+  def two(a, b)
+    # ...
+  end
+
+  def value
+    'some value'
+  end
+end
+
+Example.extend AfterDo
+
+Example.after :zero do puts 'Hello!' end
+Example.after :zero do |obj| puts obj.value end
+Example.after :two do |first, second| puts first + ' ' + second end
+Example.after :two do |a, b, obj| puts a + ' ' + b + ' ' + obj.value end
+Example.after :two do |*, obj| puts 'just ' +  obj.value end
+
+e = Example.new
+e.zero
+e.two 'one', 'two'
+# prints:
+# Hello!
+# some value
+# one two
+# one two some value
+# just some value
+```
+
 ### Attaching a callback to multiple methods
 
 In AfterDo you can attach a callback to multiple methods by just listing them:
@@ -103,6 +163,17 @@ end
 ```
 
 Doesn't that seem a lot drier then calling some save method manually after each of those in addition to separating the concerns?
+
+### Attaching multiple callbacks to the same method
+
+A method can have as many callbacks as a Ruby Array can handle (although I do not recommend you to have many callbacks around). So this works perfectly fine:
+
+```ruby
+MyClass.after :method do something end
+MyClass.after :method do another_thing end
+```
+
+The callbacks are executed in the order in which they were added.
 
 ### Working with inheritance
 
@@ -148,6 +219,36 @@ Yes. It works just like the `after` method, but the callbacks are executed befor
 
 Before for me is a far less common use case, that's why it was only added later (in the 0.2 release).
 
+Here is a small sample:
+
+```ruby
+require 'after_do'
+
+class MyClass
+  attr_accessor :value
+end
+
+MyClass.extend AfterDo
+MyClass.after :value= do |*, obj| puts 'after: ' + obj.value.to_s end
+MyClass.before :value= do |*, obj| puts 'before: ' + obj.value.to_s end
+
+m = MyClass.new
+m.value = 'Hello'
+m.value = 'new value'
+
+# Output is:
+# before:
+# after: Hello
+# before: Hello
+# after: new value
+```
+
+### Method granularity
+
+AfterDo works on the granularity of methods. That means that you can only attach callbacks to methods. This is no problem however, since if it's your code you can always define new methods. E.g. you want to attach callbacks to the end of some operation that happens in the middle of a method just define a new method for that piece of code.
+
+I sometimes do this for evaluating the block, as I want to do something when that block finished evaluating so I define a method `eval_block` wherein I just evaluate the block.
+
 ## Is this a good idea?
 
 Always depends on what you are doing with it. As many things out there it has its use cases but can easily be misused.
@@ -160,8 +261,10 @@ Always depends on what you are doing with it. As many things out there it has it
 
 ### Drawbacks
 
-- You lose clarity. With this gem it is not immediately visible what happens when a method is called as some behavior might be defined elsewhere.
+- You lose clarity. With callbacks after a method it is not immediately visible what happens when a method is called as some behavior might be defined elsewhere.
 - You could use this to modify the behaviour of classes everywhere. Don't. Use it for what it is meant to be used for - a concern that is not the primary concern of the class you are adding the callback to but that class is still involved with.
+
+A use case I feel this is particularly made for is redrawing. That's what we use it for over at [shoes4](https://github.com/shoes/shoes4). E.g. we have multiple objects and different actions on these objects may trigger a redraw (such changing the position of a circle). This concern could be littered all over the code base. Or nicely packed into one file where you don't repeat yourself for similar redrawing scenarios and you see all the redraws at one glance. Furthermore it makes it easier to do things like "Just do one redraw every 1/30s" (not yet implemented).
 
 ## Does it work with Ruby interpreter X?
 
