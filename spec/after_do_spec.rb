@@ -31,10 +31,19 @@ describe AfterDo do
       @dummy_class.should respond_to callback_adder
     end
 
-    it 'calls a method on the injected mockie' do
+    def simple_callback_called_test(callback_adder)
       @dummy_class.send callback_adder, :zero do mockie.call_method end
       mockie.should_receive :call_method
       dummy_instance.zero
+    end
+
+    it 'calls a method on the injected mockie' do
+      simple_callback_called_test callback_adder
+    end
+
+    it 'calls a method on the injected mockie even if that method is private' do
+      @dummy_class.send(:private, :zero)
+      simple_callback_called_test callback_adder
     end
 
     it 'does not change the return value' do
@@ -70,10 +79,19 @@ describe AfterDo do
     end
 
     describe 'errors' do
-      it 'throws an error when you try to add a hook to a non existing method' do
-        expect do
-          @dummy_class.send callback_adder,  :non_existing_method do ; end
-        end.to raise_error(AfterDo::NonExistingMethodError)
+      describe 'NonExistingMethodError' do
+        it 'throws an error when you try to add a hook to a non existing method' do
+          expect do
+            @dummy_class.send callback_adder,  :non_existing_method do ; end
+          end.to raise_error(AfterDo::NonExistingMethodError)
+        end
+
+        it 'does not throw the error for private methods (see #9)' do
+          @dummy_class.send(:private, :zero)
+          expect do
+            @dummy_class.send callback_adder,  :zero do ; end
+          end.to_not raise_error
+        end
       end
 
       describe 'errors in callbacks' do
