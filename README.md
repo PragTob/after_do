@@ -6,7 +6,8 @@ AfterDo is simple gem, that allows you to execute a specified block after specif
 MyClass.after :some_method do whatever_you_want end
 ```
 
-This should generally not be done to alter behavior of the class and its instances but rather to fight cross-cutting concerns such as logging. E.g. with logging you litter all your code with logging statements - that concern is spread over many files. With AfterDo you could put all the logging in one file.
+Why would you want to do this? Well to fight cross-cutting concerns such as logging. E.g. there are concerns in an applications that apply to multiple objects (e.g. they cross-cut). A popular example is logging - you might want to log multiple actions but logging is not the primary concern of the class in question. With logging you litter all your code with logging statements - that concern is spread over many files. With AfterDo you could put all the logging in one file. Other use cases include gathering business statistics or redrawing timing of elements. Personally I extracted this gem from a project where I wanted to decouple my domain objects from the way they are saved (for fun and profit!).
+This should generally not be done to alter behavior of the class and its instances - this makes programs more confusing rather than easier to understand.
 
 AfterDo has no external runtime dependencies and the code is not even 120 lines of code (blank lines included) with lots of small methods. So simplecov reports there are not even 70 relevant lines.
 
