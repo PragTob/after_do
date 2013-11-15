@@ -71,11 +71,21 @@ describe AfterDo do
       dummy_instance.zero
     end
 
-    it 'can remove all callbacks' do
-      mockie.should_not_receive :call_method
-      @dummy_class.send callback_adder, :zero do mockie.call_method end
-      @dummy_class.remove_all_callbacks
-      dummy_instance.zero
+    describe 'removing callbacks' do
+      it 'can remove all callbacks' do
+        mockie.should_not_receive :call_method
+        @dummy_class.send callback_adder, :zero do mockie.call_method end
+        @dummy_class.remove_all_callbacks
+        dummy_instance.zero
+      end
+
+      it 'does not crash the addition of new callbacks afterwards' do
+        mockie.should_receive :call_method
+        @dummy_class.send callback_adder, :zero do mockie.call_method end
+        @dummy_class.remove_all_callbacks
+        @dummy_class.send callback_adder, :zero do mockie.call_method end
+        dummy_instance.zero
+      end
     end
 
     describe 'errors' do

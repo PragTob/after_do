@@ -42,7 +42,11 @@ module AfterDo
     end
 
     def _after_do_basic_hash
-      {before: {}, after: {}}
+      {after: _after_do_methods_hash, before: _after_do_methods_hash}
+    end
+
+    def _after_do_methods_hash
+      Hash.new {|hash, key| hash[key] = []}
     end
 
     def _after_do_add_callback_to_method(type, method, block)
@@ -54,8 +58,6 @@ module AfterDo
 
     def _after_do_make_after_do_version_of_method(method)
       _after_do_raise_no_method_error(method) unless _after_do_defined?(method)
-      @_after_do_callbacks[:before][method] = []
-      @_after_do_callbacks[:after][method] = []
       alias_name = _after_do_aliased_name method
       _after_do_rename_old_method(method, alias_name)
       _after_do_redefine_method_with_callback(method, alias_name)
