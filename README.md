@@ -272,8 +272,14 @@ Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with
 
 ## Contributing
 
+Contributions are very welcome. Whether it's an issue or even a pull request. For pull requests the you can use the following flow:
+
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+I'd also really appreciate spec only pull requests or bug reports with a failing spec/minimal example as this makes fixing it a lot easier =)
+
+Thanks in advance for all contributions of any kind!
