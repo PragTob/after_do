@@ -198,6 +198,59 @@ b = B.new
 b.a #prints out: a was called
 ```
 
+### Usage from within a class
+
+If you got some repetitive tasks, that needs to be done after/before a lot of methods in a class then you can also use AfterDo for this. This works a bit like `before_action`/`after_action` which you might know from Ruby on Rails.
+
+E.g. like this:
+
+```
+class MyClass
+  extend AfterDo
+
+  # ...
+
+  after :my_method, :method2, :m3 do |args*, instance| instance.a_method end
+end
+```
+
+See this example:
+
+```ruby
+class Team
+  extend AfterDo
+  
+  def add_member(member)
+    # ...
+  end
+  
+  def remove_member(member)
+    # ..
+  end
+  
+  def change_name(new_name)
+    # ..
+  end
+  
+  def save
+   # ..
+   puts 'saving...'
+  end
+  
+  after :add_member, :remove_member, :change_name do |*, team| team.save end
+end
+
+team = Team.new
+team.add_member 'Maren'
+team.change_name 'Ruby Cherries'
+team.remove_member 'Guilia'
+
+# Output is:
+# saving...
+# saving...
+# saving...
+```
+
 ### Removing callbacks
 
 You can remove all callbacks you added to a class by doing:
@@ -205,6 +258,8 @@ You can remove all callbacks you added to a class by doing:
 ```ruby
 MyClass.remove_all_callbacks
 ```
+
+Note that this not remove callbacks defined in super classes.
 
 ### Errors
 

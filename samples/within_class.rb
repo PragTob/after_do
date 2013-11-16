@@ -20,10 +20,15 @@ class Team
    puts 'saving...'
   end
   
-  after :add_member, :remove_member, :change_name do |*args, team| team.save end
+  after :add_member, :remove_member, :change_name do |*, team| team.save end
 end
 
 team = Team.new
 team.add_member 'Maren'
 team.change_name 'Ruby Cherries'
 team.remove_member 'Guilia'
+
+# Output is:
+# saving...
+# saving...
+# saving...
