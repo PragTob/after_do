@@ -30,7 +30,7 @@ module AfterDo
     private
     def _after_do_define_callback(type, methods, block)
       @_after_do_callbacks ||= _after_do_basic_hash
-      methods.flatten! #in case someone used an Array
+      methods = methods.flatten #in case someone used an Array
       _after_do_raise_no_method_specified(type) if methods.empty?
       methods.each do |method|
         _after_do_add_callback_to_method(type, method, block)
