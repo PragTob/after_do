@@ -1,30 +1,61 @@
+# The after_do library to add callbacks to methods in Ruby. Before using this
+# with any class, that class has to extend the AfterDo module first e.g.
+#    MyClass.extend AfterDo
+#    MyClass.after :some_method do awesome_stuff end
+#
+# More information at the github page: https://github.com/PragTob/after_do
 module AfterDo
+  # The prefix for the copies of the original methods made by after_do
   ALIAS_PREFIX = '__after_do_orig_'
 
+  # ::nodoc::
   def self.extended(klazz)
     klazz.send(:include, AfterDo::Instance)
     klazz.send(:extend, AfterDo::Class)
   end
 
+  # Raised when trying to attach a callback to a non existing method
   class NonExistingMethodError < StandardError ; end
+
+  # Raised when an error occurs in one of the callbacks of a method. Provides
+  # additional information as to for which method and where the block was
+  # defined.
   class CallbackError < StandardError ; end
 
+  # These methods become available on a class after the AfterDo module was
+  # extended (e.g. extending the AfterDo module results in extending
+  # AfterDo::Class)
   module Class
-
-    def _after_do_callbacks
-      @_after_do_callbacks || _after_do_basic_hash
-    end
-
+    # A method to add a callback to a method or a list of methods to be executed
+    # after the original method was executed. E.g.:
+    #    MyClass.after :some_method do awesome_stuff end
+    # It can only take a list of methods after which a block should be executed:
+    #    MyClass.after :method1, :method2, :method3 do puts 'jay!' end
+    # The list might also be an Array.
     def after(*methods, &block)
       _after_do_define_callback(:after, methods, block)
     end
 
+    # This method works much like .after - just that the blocks are executed
+    # before the method is called.
     def before(*methods, &block)
       _after_do_define_callback(:before, methods, block)
     end
 
+    # Removes all callbacks attach to methods in this class.
     def remove_all_callbacks
-      @_after_do_callbacks = _after_do_basic_hash if @_after_do_callbacks
+      @_after_do_callbacks = _after_do_basic_hash
+    end
+
+    # It's not really meant for you to mess with - therefore the
+    # _after_do prefix (it's an internal structure but needs to be accessible)
+    # from instances.
+    # However it's an accessor for the after_do callbacks associated with this
+    # class. This is a hash of the following form:
+    #    {after:  {method: [callback1, callback2, ...]},
+    #     before: {method: [callback1, callback2, ...]}
+    def _after_do_callbacks
+      @_after_do_callbacks || _after_do_basic_hash
     end
 
     private
@@ -98,7 +129,11 @@ module AfterDo
     end
   end
 
+  # These methods become available on instances of a class after extending the
+  # AfterDo module. They are just needed for the callback lookup/execution and
+  # all of them are private - you should not call them.
   module Instance
+    private
     def _after_do_execute_callbacks(type, method, *args)
       callback_classes = self.class.ancestors.select do |klazz|
         _after_do_has_callback_for?(klazz, type, method)
