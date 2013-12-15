@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = AfterDo::VERSION
   spec.authors       = ["Tobias Pfeiffer"]
   spec.email         = ["pragtob@gmail.com"]
-  spec.description   = %q{after_do is a gem that let's you execute a block of your choice after a specific method was called on a class.}
-  spec.summary       = %q{after_do allows you to do simple after hooks on methods}
+  spec.description   = %q{after_do is a gem that let's you execute a block of your choice after or before a specific method is called on a class. This is inspired by Aspect Oriented Programming and should be used to fight cross-cutting concerns.}
+  spec.summary       = %q{after_do allows you to add simple after/before hooks to methods}
   spec.homepage      = "https://github.com/PragTob/after_do"
   spec.license       = "MIT"
 
