@@ -1,15 +1,17 @@
-# AfterDo [![Gem Version](https://badge.fury.io/rb/after_do.png)](http://badge.fury.io/rb/after_do)[![Build Status](https://travis-ci.org/PragTob/after_do.png?branch=master)](https://travis-ci.org/PragTob/after_do)[![Code Climate](https://codeclimate.com/github/PragTob/after_do.png)](https://codeclimate.com/github/PragTob/after_do)[![Coverage Status](https://coveralls.io/repos/PragTob/after_do/badge.png)](https://coveralls.io/r/PragTob/after_do)
+# after_do [![Gem Version](https://badge.fury.io/rb/after_do.png)](http://badge.fury.io/rb/after_do)[![Build Status](https://travis-ci.org/PragTob/after_do.png?branch=master)](https://travis-ci.org/PragTob/after_do)[![Code Climate](https://codeclimate.com/github/PragTob/after_do.png)](https://codeclimate.com/github/PragTob/after_do)[![Coverage Status](https://coveralls.io/repos/PragTob/after_do/badge.png)](https://coveralls.io/r/PragTob/after_do)
 
-AfterDo is simple gem, that allows you to execute a specified block after specified method of a class are called. If the class extends `AfterDo` you can simply do this by
+after_do is simple gem, that allows you to execute some blocks (callbacks) after specific method of a class are called. If the class extends `AfterDo` you can simply do this by
 
 ```
 MyClass.after :some_method do whatever_you_want end
 ```
 
-Why would you want to do this? Well to fight cross-cutting concerns such as logging. E.g. there are concerns in an applications that apply to multiple objects (e.g. they cross-cut). A popular example is logging - you might want to log multiple actions but logging is not the primary concern of the class in question. With logging you litter all your code with logging statements - that concern is spread over many files. With AfterDo you could put all the logging in one file. Other use cases include gathering business statistics or redrawing timing of elements. Personally I extracted this gem from a project where I wanted to decouple my domain objects from the way they are saved (for fun and profit!).
+Why would you want to do this? Well to fight cross-cutting concerns such as logging. E.g. there are concerns in an applications that apply to multiple objects (e.g. they cross-cut). A popular example is logging - you might want to log multiple actions but logging is not the primary concern of the class in question. With logging you litter all your code with logging statements - that concern is spread over many files. With after_do you could put all the logging in one file. Other use cases include gathering business statistics or redrawing timing of elements. Personally I extracted this gem from a project where I wanted to decouple my domain objects from the way they are saved (for fun and profit!).
 This should generally not be done to alter behavior of the class and its instances - this makes programs more confusing rather than easier to understand.
 
-AfterDo has no external runtime dependencies and the code is around 120 lines of code (blank lines included) with lots of small methods. So simplecov reports there are not even 70 relevant lines.
+The idea for this is inspired by Aspect Oriented Programming - e.g. do something when specific methods are executed. However I doubt that this formally fulfills the lingo (join points, aspects, advice...)
+
+after_do has no external runtime dependencies and the code is around 160 lines of code (blank lines and documentation included) with lots of small methods. So simplecov reports there are a little above 70 relevant lines code (it ignores blank lines, docs etc.).
 
 ## Installation
 
@@ -27,18 +29,18 @@ Or install it yourself as:
 
 ## Usage
 
-This section is dedicated to show of the general usage and effects of AfterDo. You can also check out the samples directory for some samples or the specs in the spec folder.
+This section is dedicated to show of the general usage and effects of after_do. You can also check out the samples directory for some samples or the specs in the spec folder.
 
 ### General usage
 
-In order to use AfterDo the class/module you want to use it with first has to extend the `AfterDo` module. You can do this right in the class definition or afterwards like this: `MyClass.extend AfterDo`.
+In order to use after_do the class/module you want to use it with first has to extend the `AfterDo` module. You can do this right in the class definition or afterwards like this: `MyClass.extend AfterDo`.
 With this setup you can add a callback to `method` like this:
 
 ```ruby
 MyClass.after :method do magic end
 ```
 
-With AfterDo you can do simple things like printing something out every time a method is called as in this example:
+With after_do you can do simple things like printing something out every time a method is called as in this example:
 
 ```ruby
 class Dog
@@ -66,7 +68,7 @@ dog2.bark
 
 ### How does it work?
 
-When you attach a callback to a method with AfterDo what it basically does is it creates a copy of that method and then redefines the method to basically look like this (pseudo code):
+When you attach a callback to a method with after_do what it basically does is it creates a copy of that method and then redefines the method to basically look like this (pseudo code):
 
 ```ruby
 execute_before_callbacks
@@ -79,7 +81,7 @@ To do this some helper methods are defined in the AfterDo module. As classes hav
 
 ### Getting a hold of the method arguments and the object
 
-With AfterDo both the arguments to the method you are attaching the callback to and the object for which the callback is executed are passed into the callback block.
+With after_do both the arguments to the method you are attaching the callback to and the object for which the callback is executed are passed into the callback block.
 
 So if you have a method that takes two arguments you can get those like this:
 
@@ -139,7 +141,7 @@ e.two 'one', 'two'
 
 ### Attaching a callback to multiple methods
 
-In AfterDo you can attach a callback to multiple methods by just listing them:
+In after_do you can attach a callback to multiple methods by just listing them:
 
 ```ruby
 SomeClass.after :one_method, :another_method do something end
@@ -177,7 +179,7 @@ The callbacks are executed in the order in which they were added.
 
 ### Working with inheritance
 
-AfterDo also works with inheritance. E.g. if you attach a callback to a method in a super class and that method is called in a sub class the callback is still executed.
+after_do also works with inheritance. E.g. if you attach a callback to a method in a super class and that method is called in a sub class the callback is still executed.
 
 See this sample:
 
@@ -200,7 +202,7 @@ b.a #prints out: a was called
 
 ### Usage from within a class
 
-If you got some repetitive tasks, that needs to be done after/before a lot of methods in a class then you can also use AfterDo for this. This works a bit like `before_action`/`after_action` which you might know from Ruby on Rails.
+If you got some repetitive tasks, that needs to be done after/before a lot of methods in a class then you can also use after_do for this. This works a bit like `before_action`/`after_action` which you might know from Ruby on Rails.
 
 E.g. like this:
 
@@ -263,7 +265,7 @@ Note that this not remove callbacks defined in super classes.
 
 ### Errors
 
-There are some custom errors that AfterDo throws. When you try to add a callback to a method which that class does not understand it will throw `AfterDo::NonExistingMethodError`.
+There are some custom errors that after_do throws. When you try to add a callback to a method which that class does not understand it will throw `AfterDo::NonExistingMethodError`.
 
 When an error occurs during one of the callbacks that are attached to a method it will throw `AfterDo::CallbackError` with information about the original error and where the block/callback causing this error was defined to help pinpoint the error.
 
@@ -300,7 +302,7 @@ m.value = 'new value'
 
 ### Method granularity
 
-AfterDo works on the granularity of methods. That means that you can only attach callbacks to methods. This is no problem however, since if it's your code you can always define new methods. E.g. you want to attach callbacks to the end of some operation that happens in the middle of a method just define a new method for that piece of code.
+after_do works on the granularity of methods. That means that you can only attach callbacks to methods. This is no problem however, since if it's your code you can always define new methods. E.g. you want to attach callbacks to the end of some operation that happens in the middle of a method just define a new method for that piece of code.
 
 I sometimes do this for evaluating the block, as I want to do something when that block finished evaluating so I define a method `eval_block` wherein I just evaluate the block.
 
