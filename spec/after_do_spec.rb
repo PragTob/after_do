@@ -27,6 +27,10 @@ describe AfterDo do
   end
 
   shared_examples_for 'calling callbacks' do |callback_adder|
+    it 'does not monkey patch Class' do
+      expect(Class.new).not_to respond_to callback_adder
+    end
+
     it 'responds to before/after' do
       @dummy_class.should respond_to callback_adder
     end
