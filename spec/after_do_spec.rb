@@ -31,13 +31,13 @@ describe AfterDo do
       expect(Class.new).not_to respond_to callback_adder
     end
 
-    it 'responds to before/after' do
-      @dummy_class.should respond_to callback_adder
+    it 'responds to before/after extended with AfterDo' do
+      expect(@dummy_class).to respond_to callback_adder
     end
 
     def simple_callback_called_test(callback_adder)
       @dummy_class.send callback_adder, :zero do mockie.call_method end
-      mockie.should_receive :call_method
+      expect(mockie).to receive :call_method
       dummy_instance.zero
     end
 
@@ -54,21 +54,21 @@ describe AfterDo do
       before_return_value = dummy_instance.zero
       @dummy_class.send callback_adder, :zero do 42 end
       after_return_value = dummy_instance.zero
-      after_return_value.should eq before_return_value
+      expect(after_return_value).to eq before_return_value
     end
 
     it 'marks the copied method as private' do
       @dummy_class.send callback_adder,  :zero do end
       copied_method_name = (AfterDo::ALIAS_PREFIX + 'zero').to_sym
-      dummy_instance.respond_to?(copied_method_name).should be_false
+      expect(dummy_instance).not_to respond_to copied_method_name
     end
 
     it 'can add multiple call backs' do
-      mockie.should_receive :call_method
+      expect(mockie).to receive :call_method
       mock2 = double
-      mock2.should_receive :call_another_method
+      expect(mock2).to receive :call_another_method
       mock3 = double
-      mock3.should_receive :bla
+      expect(mock3).to receive :bla
       @dummy_class.send callback_adder, :zero do mockie.call_method end
       @dummy_class.send callback_adder, :zero do mock2.call_another_method end
       @dummy_class.send callback_adder, :zero do mock3.bla end
@@ -77,14 +77,14 @@ describe AfterDo do
 
     describe 'removing callbacks' do
       it 'can remove all callbacks' do
-        mockie.should_not_receive :call_method
+        expect(mockie).not_to receive :call_method
         @dummy_class.send callback_adder, :zero do mockie.call_method end
         @dummy_class.remove_all_callbacks
         dummy_instance.zero
       end
 
       it 'does not crash the addition of new callbacks afterwards' do
-        mockie.should_receive :call_method
+        expect(mockie).to receive :call_method
         @dummy_class.send callback_adder, :zero do mockie.call_method end
         @dummy_class.remove_all_callbacks
         @dummy_class.send callback_adder, :zero do mockie.call_method end
@@ -145,7 +145,7 @@ describe AfterDo do
     describe 'with parameters' do
 
       before :each do
-        mockie.should_receive :call_method
+        expect(mockie).to receive :call_method
       end
 
       it 'can handle methods with a parameter' do
@@ -161,13 +161,13 @@ describe AfterDo do
 
     describe 'with parameters for the given block' do
       it 'can handle one block parameter' do
-        mockie.should_receive(:call_method).with(5)
+        expect(mockie).to receive(:call_method).with(5)
         @dummy_class.send callback_adder,  :one do |i| mockie.call_method i end
         dummy_instance.one 5
       end
 
       it 'can handle two block parameters' do
-        mockie.should_receive(:call_method).with(5, 8)
+        expect(mockie).to receive(:call_method).with(5, 8)
         @dummy_class.send callback_adder,  :two do |i, j| mockie.call_method i, j end
         dummy_instance.two 5, 8
       end
@@ -181,34 +181,42 @@ describe AfterDo do
       end
 
       it 'can take multiple method names as arguments' do
-        mockie.should_receive(:call_method).exactly(3).times
-        @dummy_class.send callback_adder,  :zero, :one, :two do mockie.call_method end
+        expect(mockie).to receive(:call_method).exactly(3).times
+        @dummy_class.send callback_adder,  :zero, :one, :two do
+          mockie.call_method
+        end
         call_all_3_methods
       end
 
       it 'can get the methods as an Array' do
-        mockie.should_receive(:call_method).exactly(3).times
-        @dummy_class.send callback_adder,  [:zero, :one, :two] do mockie.call_method end
+        expect(mockie).to receive(:call_method).exactly(3).times
+        @dummy_class.send callback_adder,  [:zero, :one, :two] do
+          mockie.call_method
+        end
         call_all_3_methods
       end
 
       it 'raises an error when no method is specified' do
         expect do
-          @dummy_class.send callback_adder do mockie.call_method end
+          @dummy_class.send callback_adder do
+            mockie.call_method
+          end
         end.to raise_error ArgumentError
       end
     end
 
     describe 'it can get a hold of self, if needbe' do
       it 'works for a method without arguments' do
-        mockie.should_receive(:call_method).with(dummy_instance)
-        @dummy_class.send callback_adder,  :zero do |object| mockie.call_method(object) end
+        expect(mockie).to receive(:call_method).with(dummy_instance)
+        @dummy_class.send callback_adder,  :zero do |object|
+          mockie.call_method(object)
+        end
         dummy_instance.zero
       end
 
       it 'works for a method with 2 arguments' do
-        mockie.should_receive(:call_method).with(1, 2, dummy_instance)
-        @dummy_class.send callback_adder,  :two do |first, second, object|
+        expect(mockie).to receive(:call_method).with(1, 2, dummy_instance)
+        @dummy_class.send callback_adder, :two do |first, second, object|
           mockie.call_method(first, second, object)
         end
         dummy_instance.two 1, 2
@@ -227,7 +235,7 @@ describe AfterDo do
       end
 
       it 'class knows about the after/before method' do
-        @inherited_class.should respond_to callback_adder
+        expect(@inherited_class).to respond_to callback_adder
       end
 
       describe 'callback on parent class' do
@@ -236,18 +244,18 @@ describe AfterDo do
         end
 
         it 'works when we have a callback on the parent class' do
-          mockie.should_receive :call
+          expect(mockie).to receive :call
           inherited_instance.zero
         end
 
         it 'remove_callbacks does not remove the callbacks on parent class' do
-          mockie.should_receive :call
+          expect(mockie).to receive :call
           @inherited_class.remove_all_callbacks
           inherited_instance.zero
         end
 
         it 'remove_callbacks on the parent does remove the callbacks' do
-          mockie.should_not_receive :call
+          expect(mockie).not_to receive :call
           @dummy_class.remove_all_callbacks
           inherited_instance.zero
         end
@@ -267,18 +275,18 @@ describe AfterDo do
     end
 
     it 'calls the before callback' do
-      callback.should_receive :before_call
+      expect(callback).to receive :before_call
       dummy_instance.zero
     end
 
     it 'calls the after callback' do
-      callback.should_receive :after_call
+      expect(callback).to receive :after_call
       dummy_instance.zero
     end
 
     it 'receives the calls in the right order' do
-      callback.should_receive(:before_call).ordered
-      callback.should_receive(:after_call).ordered
+      expect(callback).to receive(:before_call).ordered
+      expect(callback).to receive(:after_call).ordered
       dummy_instance.zero
     end
   end
