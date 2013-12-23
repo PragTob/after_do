@@ -92,7 +92,7 @@ MyClass.after :two_arg_method do |argument_one, argument_2| something end
 The object itself is passed in as the last block argument, so if you just care about the object you can do:
 
 ```ruby
-MyClass.after :two_arg_method do |*, obj| fancy_stuff(obj) something end
+MyClass.after :two_arg_method do |*, obj| fancy_stuff(obj) end
 ```
 
 Of course you can get a hold of the method arguments and the object:
