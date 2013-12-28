@@ -325,7 +325,7 @@ A use case I feel this is particularly made for is redrawing. That's what we use
 
 ## Does it work with Ruby interpreter X?
 
-Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with MRI 1.9.3, 2.0, the latest jruby and rubinius releases in 1.9 mode. So in short, this should work with all of them and is aimed at doing so :-)
+Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with MRI 1.9.3, 2.0, 2.1, the latest jruby and rubinius releases in 1.9 mode. So in short, this should work with all of them and is aimed at doing so :-)
 
 ## Contributing
 
