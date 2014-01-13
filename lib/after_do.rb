@@ -10,7 +10,7 @@ module AfterDo
 
   # ::nodoc::
   def self.extended(klazz)
-    klazz.send(:include, AfterDo::Instance)
+    AfterDo::Instance.define_methods_on klazz
     klazz.send(:extend, AfterDo::Class)
   end
 
@@ -133,28 +133,37 @@ module AfterDo
   # AfterDo module. They are just needed for the callback lookup/execution and
   # all of them are private - you should not call them.
   module Instance
-    private
-    def _after_do_execute_callbacks(type, method, *args)
-      callback_classes = self.class.ancestors.select do |klazz|
-        _after_do_has_callback_for?(klazz, type, method)
-      end
-      callback_classes.each do |klazz|
-        klazz._after_do_callbacks[type][method].each do |block|
-          _after_do_execute_callback(block, method, *args)
+    # We need to define the methods straight on the module/class so that
+    # defining callbacks on ruby modules works. This is because if a module is
+    # already included in a class and then another module is included in that
+    # module that does NOT affect the class. See ruby-bug:
+    # https://bugs.ruby-lang.org/issues/9112
+    def self.define_methods_on(klazz)
+      klazz.module_eval do
+        private
+        def _after_do_execute_callbacks(type, method, *args)
+          callback_classes = self.class.ancestors.select do |klazz|
+            _after_do_has_callback_for?(klazz, type, method)
+          end
+          callback_classes.each do |klazz|
+            klazz._after_do_callbacks[type][method].each do |block|
+              _after_do_execute_callback(block, method, *args)
+            end
+          end
         end
-      end
-    end
 
-    def _after_do_has_callback_for?(klazz, type, method)
-      klazz.respond_to?(:_after_do_callbacks) &&
-        klazz._after_do_callbacks[type][method]
-    end
+        def _after_do_has_callback_for?(klazz, type, method)
+          klazz.respond_to?(:_after_do_callbacks) &&
+            klazz._after_do_callbacks[type][method]
+        end
 
-    def _after_do_execute_callback(block, method, *args)
-      begin
-        block.call *args, self
-      rescue Exception => error
-        raise CallbackError, "A callback block for method #{method} on the instance #{self} with the following arguments: #{args.join(', ')} defined in the file #{block.source_location[0]} in line #{block.source_location[1]} resulted in the following error: #{error.class}: #{error.message} and this backtrace:\n #{error.backtrace.join("\n")}"
+        def _after_do_execute_callback(block, method, *args)
+          begin
+            block.call *args, self
+          rescue Exception => error
+            raise CallbackError, "A callback block for method #{method} on the instance #{self} with the following arguments: #{args.join(', ')} defined in the file #{block.source_location[0]} in line #{block.source_location[1]} resulted in the following error: #{error.class}: #{error.message} and this backtrace:\n #{error.backtrace.join("\n")}"
+          end
+        end
       end
     end
   end

@@ -3,7 +3,7 @@ require 'spec_helper'
 describe AfterDo do
 
   let(:dummy_instance) {@dummy_class.new}
-  let(:mockie) {double}
+  let(:mockie) {double 'mock block', call: true}
 
   before :each do
     redefine_dummy_class
@@ -259,6 +259,57 @@ describe AfterDo do
           @dummy_class.remove_all_callbacks
           inherited_instance.zero
         end
+      end
+    end
+
+    describe 'included modules' do
+      def redefine_dummy_module
+        Module.new do
+          def module_method
+            'module'
+          end
+        end
+      end
+
+      before :each do
+        dummy_module = redefine_dummy_module
+        @bare_class_with_module = Class.new
+        @bare_class_with_module.send(:include, dummy_module)
+        dummy_module.extend AfterDo
+        dummy_module.send callback_adder, :module_method do mockie.call end
+      end
+
+      let(:bare_instance_with_module) {@bare_class_with_module.new}
+
+      it 'executes callbacks from methods of included modules' do
+        bare_instance_with_module.module_method
+        expect(mockie).to have_received(:call)
+      end
+
+      describe '2 modules with the same method' do
+
+        def other_dummy_module
+          Module.new do
+            def module_method
+              'other module'
+            end
+          end
+        end
+
+        before :each do
+          other_module = other_dummy_module
+          @bare_class_with_module.send(:include, other_module)
+          other_module.extend AfterDo
+          other_module.send callback_adder, :module_method do mockie.call end
+        end
+
+        it 'is still just called once (no super call)' do
+          pending 'this is more work - commit basic feature first'
+
+          bare_instance_with_module.module_method
+          expect(mockie).to have_received(:call)
+        end
+
       end
     end
   end
