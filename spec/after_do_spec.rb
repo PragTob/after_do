@@ -260,6 +260,59 @@ describe AfterDo do
           inherited_instance.zero
         end
       end
+
+      describe 'callback on child and parent class' do
+        def redefine_overwriting_child_class
+          @overwriting_child_class = Class.new @dummy_class do
+            def zero
+              0
+            end
+          end
+        end
+
+        let(:overwriting_child_instance) {@overwriting_child_class.new}
+
+        before :each do
+          @dummy_class.send callback_adder, :zero do mockie.call end
+          redefine_overwriting_child_class
+          @overwriting_child_class.extend AfterDo
+          @overwriting_child_class.send callback_adder, :zero do
+            mockie.call
+          end
+        end
+
+        it 'only calls the block once when calling a method on the child' do
+          overwriting_child_instance.zero
+          expect(mockie).to have_received :call
+        end
+
+        it 'only calls the block once when calling a method on the parent' do
+          dummy_instance.zero
+          expect(mockie).to have_received :call
+        end
+      end
+
+      describe 'child class calling super' do
+        def redefine_super_child_class
+          @super_child_class = Class.new @dummy_class do
+            def zero
+              super
+            end
+          end
+        end
+
+        let (:super_child_instance) {@super_child_class.new}
+
+        before :each do
+          redefine_super_child_class
+          @dummy_class.send callback_adder, :zero do mockie.call end
+        end
+
+        it 'still calls the callback block from the parent class' do
+          super_child_instance.zero
+          expect(mockie).to have_received :call
+        end
+      end
     end
 
     describe 'included modules' do
@@ -304,8 +357,6 @@ describe AfterDo do
         end
 
         it 'is still just called once (no super call)' do
-          pending 'this is more work - commit basic feature first'
-
           bare_instance_with_module.module_method
           expect(mockie).to have_received(:call)
         end

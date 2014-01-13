@@ -125,7 +125,7 @@ module AfterDo
     end
 
     def _after_do_method_already_renamed?(method)
-      private_method_defined? _after_do_aliased_name(method)
+      private_instance_methods(false).include? _after_do_aliased_name(method)
     end
   end
 
@@ -153,7 +153,7 @@ module AfterDo
         end
 
         def _after_do_has_callback_for?(klazz, type, method)
-          klazz.respond_to?(:_after_do_callbacks) &&
+            klazz.respond_to?(:_after_do_callbacks) &&
             klazz._after_do_callbacks[type][method]
         end
 
