@@ -107,18 +107,19 @@ module AfterDo
     end
 
     def _after_do_rename_old_method(old_name, new_name)
-      class_eval do
+      module_eval do
         alias_method new_name, old_name
         private new_name
       end
     end
 
     def _after_do_redefine_method_with_callback(method, alias_name)
-      class_eval do
+      klazz = self
+      module_eval do
         define_method method do |*args|
-          _after_do_execute_callbacks :before, method, *args
+          _after_do_execute_callbacks :before, method, klazz, *args
           return_value = send(alias_name, *args)
-          _after_do_execute_callbacks :after, method, *args
+          _after_do_execute_callbacks :after, method, klazz, *args
           return_value
         end
       end
@@ -141,20 +142,10 @@ module AfterDo
     def self.define_methods_on(klazz)
       klazz.module_eval do
         private
-        def _after_do_execute_callbacks(type, method, *args)
-          callback_classes = self.class.ancestors.select do |klazz|
-            _after_do_has_callback_for?(klazz, type, method)
+        def _after_do_execute_callbacks(type, method, klazz, *args)
+          klazz._after_do_callbacks[type][method].each do |block|
+            _after_do_execute_callback(block, method, *args)
           end
-          callback_classes.each do |klazz|
-            klazz._after_do_callbacks[type][method].each do |block|
-              _after_do_execute_callback(block, method, *args)
-            end
-          end
-        end
-
-        def _after_do_has_callback_for?(klazz, type, method)
-            klazz.respond_to?(:_after_do_callbacks) &&
-            klazz._after_do_callbacks[type][method]
         end
 
         def _after_do_execute_callback(block, method, *args)
