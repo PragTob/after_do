@@ -114,14 +114,12 @@ module AfterDo
     end
 
     def _after_do_redefine_method_with_callback(method, alias_name)
-      klazz = self
-      module_eval do
-        define_method method do |*args|
-          _after_do_execute_callbacks :before, method, klazz, *args
-          return_value = send(alias_name, *args)
-          _after_do_execute_callbacks :after, method, klazz, *args
-          return_value
-        end
+      callback_klazz = self
+      define_method method do |*args|
+        _after_do_execute_callbacks :before, method, callback_klazz, *args
+        return_value = send(alias_name, *args)
+        _after_do_execute_callbacks :after, method, callback_klazz, *args
+        return_value
       end
     end
 
