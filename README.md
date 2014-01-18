@@ -253,6 +253,22 @@ team.remove_member 'Guilia'
 # saving...
 ```
 
+### Working with modules
+
+after_do works with modules just like it works with classes from version 0.3.0 onwards. E.g. you can just do:
+
+```ruby
+class MyClass
+  include MyModule
+  # ....
+end 
+
+MyModule.extend AfterDo
+MyModule.after :some_method do cool_stuff end
+
+MyClass.new.some_method # triggers callback
+```
+
 ### Removing callbacks
 
 You can remove all callbacks you added to a class by doing:
