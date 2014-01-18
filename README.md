@@ -329,7 +329,7 @@ Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with
 
 ## Contributing
 
-Contributions are very welcome. Whether it's an issue or even a pull request. For pull requests the you can use the following flow:
+Contributions are very welcome. Whether it's an issue or even a pull request. For pull requests you can use the following flow:
 
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
