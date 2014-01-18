@@ -37,18 +37,11 @@ module AfterDo
     @_after_do_callbacks = _after_do_basic_hash
   end
 
-  # It's not really meant for you to mess with - therefore the
-  # _after_do prefix (it's an internal structure but needs to be accessible)
-  # from instances.
-  # However it's an accessor for the after_do callbacks associated with this
-  # class. This is a hash of the following form:
-  #    {after:  {method: [callback1, callback2, ...]},
-  #     before: {method: [callback1, callback2, ...]}
+  private
   def _after_do_callbacks
     @_after_do_callbacks || _after_do_basic_hash
   end
 
-  private
   def _after_do_define_callback(type, methods, block)
     @_after_do_callbacks ||= _after_do_basic_hash
     methods = methods.flatten #in case someone used an Array
@@ -118,7 +111,7 @@ module AfterDo
   end
 
   def _after_do_execute_callbacks(type, method, object, *args)
-    self._after_do_callbacks[type][method].each do |block|
+    _after_do_callbacks[type][method].each do |block|
       _after_do_execute_callback(block, method, object, *args)
     end
   end
