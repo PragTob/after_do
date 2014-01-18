@@ -38,10 +38,6 @@ module AfterDo
   end
 
   private
-  def _after_do_callbacks
-    @_after_do_callbacks
-  end
-
   def _after_do_define_callback(type, methods, block)
     @_after_do_callbacks ||= _after_do_basic_hash
     methods = methods.flatten #in case someone used an Array
@@ -107,7 +103,7 @@ module AfterDo
   end
 
   def _after_do_execute_callbacks(type, method, object, *args)
-    _after_do_callbacks[type][method].each do |block|
+    @_after_do_callbacks[type][method].each do |block|
       _after_do_execute_callback(block, method, object, *args)
     end
   end
