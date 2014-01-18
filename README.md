@@ -11,7 +11,7 @@ This should generally not be done to alter behavior of the class and its instanc
 
 The idea for this is inspired by Aspect Oriented Programming - e.g. do something when specific methods are executed. However I doubt that this formally fulfills the lingo (join points, aspects, advice...)
 
-after_do has no external runtime dependencies and the code is around 160 lines (blank lines and documentation included) with lots of small methods. So simplecov reports there are a little above 70 relevant lines code (it ignores blank lines, docs etc.).
+after_do has no external runtime dependencies and the code is around 120 lines (blank lines and documentation included) with lots of small methods. So simplecov reports there are a little less than 60 relevant lines code (it ignores blank lines, docs etc.).
 
 ## Installation
 
