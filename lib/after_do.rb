@@ -39,7 +39,7 @@ module AfterDo
 
   private
   def _after_do_callbacks
-    @_after_do_callbacks || _after_do_basic_hash
+    @_after_do_callbacks
   end
 
   def _after_do_define_callback(type, methods, block)
@@ -64,13 +64,15 @@ module AfterDo
   end
 
   def _after_do_add_callback_to_method(type, method, block)
-    unless _after_do_method_already_renamed?(method)
-      _after_do_make_after_do_version_of_method(method)
-    end
+    _after_do_redefine_method(method) unless _after_do_already_redefined?(method)
     @_after_do_callbacks[type][method] << block
   end
 
-  def _after_do_make_after_do_version_of_method(method)
+  def _after_do_already_redefined?(method)
+    private_instance_methods(false).include? _after_do_aliased_name(method)
+  end
+
+  def _after_do_redefine_method(method)
     _after_do_raise_no_method_error(method) unless _after_do_defined?(method)
     alias_name = _after_do_aliased_name method
     _after_do_rename_old_method(method, alias_name)
@@ -102,10 +104,6 @@ module AfterDo
       callback_klazz.send(:_after_do_execute_callbacks, :after, method, self, *args)
       return_value
     end
-  end
-
-  def _after_do_method_already_renamed?(method)
-    private_instance_methods(false).include? _after_do_aliased_name(method)
   end
 
   def _after_do_execute_callbacks(type, method, object, *args)
