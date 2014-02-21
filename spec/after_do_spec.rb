@@ -125,11 +125,11 @@ describe AfterDo do
         end
 
         it 'mentions the error raised' do
-          expect_call_back_error /StandardError/
+          expect_call_back_error(/StandardError/)
         end
 
         it 'mentions the method called' do
-          expect_call_back_error /zero/
+          expect_call_back_error(/zero/)
         end
 
         it 'mentions the file the error was raised in' do
@@ -137,7 +137,7 @@ describe AfterDo do
         end
 
         it 'mentions the original error message' do
-          expect_call_back_error /silly message/
+          expect_call_back_error(/silly message/)
         end
       end
     end
