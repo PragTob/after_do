@@ -363,6 +363,28 @@ describe AfterDo do
 
       end
     end
+
+    describe 'module/class/singleton methods' do
+      def singleton_module
+        Module.new do
+          def self.my_singleton_method
+            'singleton_method'
+          end
+        end
+      end
+
+      it 'works when you use the singleton_class' do
+        my_module = singleton_module
+        my_module.singleton_class.extend AfterDo
+        my_module.singleton_class.send callback_adder, :my_singleton_method do
+          mockie.call
+        end
+        my_module.my_singleton_method
+        expect(mockie).to have_received(:call)
+      end
+
+    end
+
   end
 
   it_behaves_like 'calling callbacks', :after
