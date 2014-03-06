@@ -75,19 +75,6 @@ dog2.bark
 
 ```
 
-### How does it work?
-
-When you attach a callback to a method with after_do what it basically does is it creates a copy of that method and then redefines the method to basically look like this (pseudo code):
-
-```ruby
-execute_before_callbacks
-return_value = original_method
-execute_after_callbacks
-return_value
-```
-
-To do this some helper methods are defined in the AfterDo module. As classes have to extend the AfterDo module all the methods that you are not supposed to call yourself are prefixed with `_after_do_` to minimize the risk of method name clashes. The only not prefixed method are `after`, `before` and `remove_all_callbacks`.
-
 ### Getting a hold of the method arguments and the object
 
 With after_do both the arguments to the method you are attaching the callback to and the object for which the callback is executed are passed into the callback block.
@@ -112,41 +99,7 @@ MyClass.after :two_arg_method do |arg1, arg2, obj| something(arg1, arg2, obj) en
 
 If you do not want to get a hold of the method arguments or the object, then you can just don't care about the block parameters :-)
 
-Here is an example showcasing all of these:
-
-```ruby
-class Example
-  def zero
-    # ...
-  end
-
-  def two(a, b)
-    # ...
-  end
-
-  def value
-    'some value'
-  end
-end
-
-Example.extend AfterDo
-
-Example.after :zero do puts 'Hello!' end
-Example.after :zero do |obj| puts obj.value end
-Example.after :two do |first, second| puts first + ' ' + second end
-Example.after :two do |a, b, obj| puts a + ' ' + b + ' ' + obj.value end
-Example.after :two do |*, obj| puts 'just ' +  obj.value end
-
-e = Example.new
-e.zero
-e.two 'one', 'two'
-# prints:
-# Hello!
-# some value
-# one two
-# one two some value
-# just some value
-```
+For a sample showcasing all of those see `samples/getting_a_hold.rb`.
 
 ### Attaching a callback to multiple methods
 
@@ -209,59 +162,6 @@ b = B.new
 b.a #prints out: a was called
 ```
 
-### Usage from within a class
-
-If you got some repetitive tasks, that needs to be done after/before a lot of methods in a class then you can also use after_do for this. This works a bit like `before_action`/`after_action` which you might know from Ruby on Rails.
-
-E.g. like this:
-
-```
-class MyClass
-  extend AfterDo
-
-  # ...
-
-  after :my_method, :method2, :m3 do |args*, instance| instance.a_method end
-end
-```
-
-See this example:
-
-```ruby
-class Team
-  extend AfterDo
-  
-  def add_member(member)
-    # ...
-  end
-  
-  def remove_member(member)
-    # ..
-  end
-  
-  def change_name(new_name)
-    # ..
-  end
-  
-  def save
-   # ..
-   puts 'saving...'
-  end
-  
-  after :add_member, :remove_member, :change_name do |*, team| team.save end
-end
-
-team = Team.new
-team.add_member 'Maren'
-team.change_name 'Ruby Cherries'
-team.remove_member 'Guilia'
-
-# Output is:
-# saving...
-# saving...
-# saving...
-```
-
 ### Working with modules
 
 after_do works with modules just like it works with classes from version 0.3.0 onwards. E.g. you can just do:
@@ -300,6 +200,24 @@ magic
 after_do is pure magic
 ```
 
+### Usage from within a class
+
+If you got some repetitive tasks, that needs to be done after/before a lot of methods in a class then you can also use after_do for this. This works a bit like `before_action`/`after_action` which you might know from Ruby on Rails.
+
+E.g. like this:
+
+```
+class MyClass
+  extend AfterDo
+
+  # ...
+
+  after :my_method, :method2, :m3 do |args*, instance| instance.a_method end
+end
+```
+
+See `samples/within_class.rb` for a more thorough sample.
+
 ### Removing callbacks
 
 You can remove all callbacks you added to a class by doing:
@@ -315,6 +233,19 @@ Note that this not remove callbacks defined in super classes.
 There are some custom errors that after_do throws. When you try to add a callback to a method which that class does not understand it will throw `AfterDo::NonExistingMethodError`.
 
 When an error occurs during one of the callbacks that are attached to a method it will throw `AfterDo::CallbackError` with information about the original error and where the block/callback causing this error was defined to help pinpoint the error.
+
+### How does it work?
+
+When you attach a callback to a method with after_do what it basically does is it creates a copy of that method and then redefines the method to basically look like this (pseudo code):
+
+```ruby
+execute_before_callbacks
+return_value = original_method
+execute_after_callbacks
+return_value
+```
+
+To do this some helper methods are defined in the AfterDo module. As classes have to extend the AfterDo module all the methods that you are not supposed to call yourself are prefixed with `_after_do_` to minimize the risk of method name clashes. The only not prefixed method are `after`, `before` and `remove_all_callbacks`.
 
 
 ## Is there a before method?
