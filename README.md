@@ -112,41 +112,7 @@ MyClass.after :two_arg_method do |arg1, arg2, obj| something(arg1, arg2, obj) en
 
 If you do not want to get a hold of the method arguments or the object, then you can just don't care about the block parameters :-)
 
-Here is an example showcasing all of these:
-
-```ruby
-class Example
-  def zero
-    # ...
-  end
-
-  def two(a, b)
-    # ...
-  end
-
-  def value
-    'some value'
-  end
-end
-
-Example.extend AfterDo
-
-Example.after :zero do puts 'Hello!' end
-Example.after :zero do |obj| puts obj.value end
-Example.after :two do |first, second| puts first + ' ' + second end
-Example.after :two do |a, b, obj| puts a + ' ' + b + ' ' + obj.value end
-Example.after :two do |*, obj| puts 'just ' +  obj.value end
-
-e = Example.new
-e.zero
-e.two 'one', 'two'
-# prints:
-# Hello!
-# some value
-# one two
-# one two some value
-# just some value
-```
+Check out the [getting a hold sample](https://github.com/PragTob/after_do/blob/master/samples/getting_a_hold.rb) for more.
 
 ### Attaching a callback to multiple methods
 
@@ -225,42 +191,7 @@ class MyClass
 end
 ```
 
-See this example:
-
-```ruby
-class Team
-  extend AfterDo
-  
-  def add_member(member)
-    # ...
-  end
-  
-  def remove_member(member)
-    # ..
-  end
-  
-  def change_name(new_name)
-    # ..
-  end
-  
-  def save
-   # ..
-   puts 'saving...'
-  end
-  
-  after :add_member, :remove_member, :change_name do |*, team| team.save end
-end
-
-team = Team.new
-team.add_member 'Maren'
-team.change_name 'Ruby Cherries'
-team.remove_member 'Guilia'
-
-# Output is:
-# saving...
-# saving...
-# saving...
-```
+Check out the [within class sample](https://github.com/PragTob/after_do/blob/master/samples/within_class.rb) for a more complete example.
 
 ### Working with modules
 
@@ -299,31 +230,12 @@ When an error occurs during one of the callbacks that are attached to a method i
 
 Yes. It works just like the `after` method, but the callbacks are executed before the original method is called. You can also mix and match before and after calls.
 
-Before for me is a far less common use case, that's why it was only added later (in the 0.2 release).
-
-Here is a small sample:
-
 ```ruby
-require 'after_do'
-
-class MyClass
-  attr_accessor :value
-end
-
-MyClass.extend AfterDo
-MyClass.after :value= do |*, obj| puts 'after: ' + obj.value.to_s end
-MyClass.before :value= do |*, obj| puts 'before: ' + obj.value.to_s end
-
-m = MyClass.new
-m.value = 'Hello'
-m.value = 'new value'
-
-# Output is:
-# before:
-# after: Hello
-# before: Hello
-# after: new value
+MyClass.before :a_method do so_much end
 ```
+
+Check out the [before sample](https://github.com/PragTob/after_do/blob/master/samples/before.rb).
+
 
 ### Method granularity
 

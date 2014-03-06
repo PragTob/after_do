@@ -110,7 +110,7 @@ module AfterDo
 
   def _after_do_execute_callback(block, method, object, *args)
     begin
-      block.call *args, object
+      block.call(*args, object)
     rescue Exception => error
       raise CallbackError, "A callback block for method #{method} on the instance #{self} with the following arguments: #{args.join(', ')} defined in the file #{block.source_location[0]} in line #{block.source_location[1]} resulted in the following error: #{error.class}: #{error.message} and this backtrace:\n #{error.backtrace.join("\n")}"
     end
