@@ -278,6 +278,28 @@ MyModule.after :some_method do cool_stuff end
 MyClass.new.some_method # triggers callback
 ```
 
+### Working with module/class/singleton methods
+
+after_do also work with module/class/singleton methods whatever you want to call them, e.g. with `MyModule.method`, thanks to ruby's awesome object/class system. You just have to attach after_do and the callbacks to the singleton class of the object (because that's where the "class side" methods are defined).
+
+Take a look:
+
+```ruby
+module M
+  def self.magic
+    puts 'magic'
+  end
+end
+
+M.singleton_class.extend AfterDo
+M.singleton_class.after :magic do puts 'after_do is pure magic' end
+
+M.magic
+# Output is:
+magic
+after_do is pure magic
+```
+
 ### Removing callbacks
 
 You can remove all callbacks you added to a class by doing:
