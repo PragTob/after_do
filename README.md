@@ -75,19 +75,6 @@ dog2.bark
 
 ```
 
-### How does it work?
-
-When you attach a callback to a method with after_do what it basically does is it creates a copy of that method and then redefines the method to basically look like this (pseudo code):
-
-```ruby
-execute_before_callbacks
-return_value = original_method
-execute_after_callbacks
-return_value
-```
-
-To do this some helper methods are defined in the AfterDo module. As classes have to extend the AfterDo module all the methods that you are not supposed to call yourself are prefixed with `_after_do_` to minimize the risk of method name clashes. The only not prefixed method are `after`, `before` and `remove_all_callbacks`.
-
 ### Getting a hold of the method arguments and the object
 
 With after_do both the arguments to the method you are attaching the callback to and the object for which the callback is executed are passed into the callback block.
@@ -175,6 +162,44 @@ b = B.new
 b.a #prints out: a was called
 ```
 
+### Working with modules
+
+after_do works with modules just like it works with classes from version 0.3.0 onwards. E.g. you can just do:
+
+```ruby
+class MyClass
+  include MyModule
+  # ....
+end 
+
+MyModule.extend AfterDo
+MyModule.after :some_method do cool_stuff end
+
+MyClass.new.some_method # triggers callback
+```
+
+### Working with module/class/singleton methods
+
+after_do also work with module/class/singleton methods whatever you want to call them, e.g. with `MyModule.method`, thanks to ruby's awesome object/class system. You just have to attach after_do and the callbacks to the singleton class of the object (because that's where the "class side" methods are defined).
+
+Take a look:
+
+```ruby
+module M
+  def self.magic
+    puts 'magic'
+  end
+end
+
+M.singleton_class.extend AfterDo
+M.singleton_class.after :magic do puts 'after_do is pure magic' end
+
+M.magic
+# Output is:
+magic
+after_do is pure magic
+```
+
 ### Usage from within a class
 
 If you got some repetitive tasks, that needs to be done after/before a lot of methods in a class then you can also use after_do for this. This works a bit like `before_action`/`after_action` which you might know from Ruby on Rails.
@@ -193,21 +218,6 @@ end
 
 Check out the [within class sample](https://github.com/PragTob/after_do/blob/master/samples/within_class.rb) for a more complete example.
 
-### Working with modules
-
-after_do works with modules just like it works with classes from version 0.3.0 onwards. E.g. you can just do:
-
-```ruby
-class MyClass
-  include MyModule
-  # ....
-end 
-
-MyModule.extend AfterDo
-MyModule.after :some_method do cool_stuff end
-
-MyClass.new.some_method # triggers callback
-```
 
 ### Removing callbacks
 
@@ -225,6 +235,19 @@ There are some custom errors that after_do throws. When you try to add a callbac
 
 When an error occurs during one of the callbacks that are attached to a method it will throw `AfterDo::CallbackError` with information about the original error and where the block/callback causing this error was defined to help pinpoint the error.
 
+### How does it work?
+
+When you attach a callback to a method with after_do what it basically does is it creates a copy of that method and then redefines the method to basically look like this (pseudo code):
+
+```ruby
+execute_before_callbacks
+return_value = original_method
+execute_after_callbacks
+return_value
+```
+
+To do this some helper methods are defined in the AfterDo module. As classes have to extend the AfterDo module all the methods that you are not supposed to call yourself are prefixed with `_after_do_` to minimize the risk of method name clashes. The only not prefixed method are `after`, `before` and `remove_all_callbacks`.
+
 
 ## Is there a before method?
 
@@ -235,7 +258,6 @@ MyClass.before :a_method do so_much end
 ```
 
 Check out the [before sample](https://github.com/PragTob/after_do/blob/master/samples/before.rb).
-
 
 ### Method granularity
 
