@@ -1,6 +1,6 @@
 # after_do [![Gem Version](https://badge.fury.io/rb/after_do.png)](http://badge.fury.io/rb/after_do)[![Build Status](https://travis-ci.org/PragTob/after_do.png?branch=master)](https://travis-ci.org/PragTob/after_do)[![Code Climate](https://codeclimate.com/github/PragTob/after_do.png)](https://codeclimate.com/github/PragTob/after_do)[![Coverage Status](https://coveralls.io/repos/PragTob/after_do/badge.png)](https://coveralls.io/r/PragTob/after_do)
 
-after_do is simple gem, that helps you fight cross-cutting concerns with an approach similar to Aspect Oriented Programming (AOP). after_do allows you to execute blocks (callbacks) after/before specific methods of a class or a module are called.
+after_do is a simple gem, that helps you fight cross-cutting concerns with an approach similar to Aspect Oriented Programming (AOP). after_do allows you to execute blocks (callbacks) after/before specific methods of a class or a module are called.
 
 If the class extends `AfterDo` you can simply do this by
 
@@ -10,14 +10,15 @@ MyClass.after :some_method do whatever_you_want end
 
 Some facts about after_do:
 
-* no external runtime dependencies
+* no runtime dependencies
 * small code base: code is around 120 lines of code with blank lines, comments and everything - simplecov reports less than 60 relevant lines of code
 * simple DSL
 * no monkey patching
 
 ## Why would you want to do this?
 Well to fight cross-cutting concerns. These are concerns in an applications that apply to multiple objects (e.g. they cross-cut).
-A popular example is logging - you might want to log multiple actions of different classes but logging is not the primary concern of the class in question. With logging you litter all your code with logging statements - that concern is spread over many files and adds unnecessary noise to them. With after_do you could put all the logging in one file. Other use cases include gathering business statistics or redrawing timing of elements.
+A popular example is logging - you might want to log multiple actions of different classes but logging is not the primary concern of the class in question. With logging you litter all your code with logging statements - that concern is spread over many files and adds unnecessary noise to them.
+With after_do you could put all the logging in one file. Other use cases include gathering business statistics or redrawing timing of elements.
 This should generally not be done to alter behavior of the class and its instances - this makes programs more confusing rather than easier to understand.
 
 The idea for this is inspired by Aspect Oriented Programming - e.g. do something when specific methods are executed. However I doubt that this formally fulfills the lingo (join points, aspects, advice...)
@@ -35,10 +36,14 @@ And then execute:
 Or install it yourself as:
 
     $ gem install after_do
+    
+And then you have to require the gem before you can use it:
+
+    require 'after_do'
 
 ## Usage
 
-This section is dedicated to show of the general usage and effects of after_do. You can also check out the samples directory for some samples or the specs in the spec folder.
+This section is dedicated to show the general usage and effects of after_do. You can also check out the [samples directory](https://github.com/PragTob/after_do/tree/master/samples) or the [specs](https://github.com/PragTob/after_do/blob/master/spec/after_do_spec.rb) in the spec folder.
 
 ### General usage
 
@@ -72,7 +77,6 @@ dog2.bark
 # I just heard a dog bark!
 # Woooof
 # I just heard a dog bark!
-
 ```
 
 ### Getting a hold of the method arguments and the object
@@ -180,7 +184,7 @@ MyClass.new.some_method # triggers callback
 
 ### Working with module/class/singleton methods
 
-after_do also work with module/class/singleton methods whatever you want to call them, e.g. with `MyModule.method`, thanks to ruby's awesome object/class system. You just have to attach after_do and the callbacks to the singleton class of the object (because that's where the "class side" methods are defined).
+after_do also works with module/class/singleton methods whatever you want to call them, e.g. with `MyModule.method`, thanks to ruby's awesome object/class system. You just have to attach the callbacks to the singleton class of the object (because that's where the "class side" methods are defined).
 
 Take a look:
 
@@ -202,7 +206,7 @@ after_do is pure magic
 
 ### Usage from within a class
 
-If you got some repetitive tasks, that needs to be done after/before a lot of methods in a class then you can also use after_do for this. This works a bit like `before_action`/`after_action` which you might know from Ruby on Rails.
+If you got some repetitive tasks, that need to be done after/before a lot of methods in a class then you can also use after_do for this. This works a bit like `before_action`/`after_action` (or *_filter in the Rails 3 lingo) which you might know from Ruby on Rails.
 
 E.g. like this:
 
@@ -227,7 +231,7 @@ You can remove all callbacks you added to a class by doing:
 MyClass.remove_all_callbacks
 ```
 
-Note that this not remove callbacks defined in super classes.
+Note that this not remove callbacks defined in super/sub classes.
 
 ### Errors
 
@@ -261,9 +265,9 @@ Check out the [before sample](https://github.com/PragTob/after_do/blob/master/sa
 
 ### Method granularity
 
-after_do works on the granularity of methods. That means that you can only attach callbacks to methods. This is no problem however, since if it's your code you can always define new methods. E.g. you want to attach callbacks to the end of some operation that happens in the middle of a method just define a new method for that piece of code.
+after_do works on the granularity of methods. That means that you can only attach callbacks to methods. This is no problem however, since if it's your code you can always define new methods. E.g. if you want to attach callbacks to the end of some operation that happens in the middle of a method just define a new method for that piece of code.
 
-I sometimes do this for evaluating the block, as I want to do something when that block finished evaluating so I define a method `eval_block` wherein I just evaluate the block.
+I sometimes do this for evaluating a block, as I want to do something when that block finished evaluating so I define a method `eval_block` wherein I just evaluate the block.
 
 ## Is this a good idea?
 
