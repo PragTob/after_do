@@ -80,7 +80,7 @@ module AfterDo
   end
 
   def _after_do_raise_no_method_error(method)
-    raise NonExistingMethodError, "There is no method #{method} on #{self} to attach a block to with AfterDo"
+    raise NonExistingMethodError, "There is no method #{method} on #{self} to attach a block to with after_do"
   end
 
   def _after_do_aliased_name(symbol)
@@ -112,7 +112,7 @@ module AfterDo
     begin
       block.call(*args, object)
     rescue Exception => error
-      raise CallbackError, "A callback block for method #{method} on the instance #{self} with the following arguments: #{args.join(', ')} defined in the file #{block.source_location[0]} in line #{block.source_location[1]} resulted in the following error: #{error.class}: #{error.message} and this backtrace:\n #{error.backtrace.join("\n")}"
+      raise CallbackError, "A #{error.class}: #{error.message} was raised during an after_do callback block for method '#{method}' on the instance #{self.inspect} with the following arguments: #{args.join(', ')} defined in the file #{block.source_location[0]} in line #{block.source_location[1]}. This is the backtrace of the #{error.class}: \n #{error.backtrace.join("\n")}"
     end
   end
 end
