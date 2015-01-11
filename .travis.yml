@@ -10,4 +10,8 @@ rvm:
 matrix:
   allow_failures:
     - rvm: jruby-head
+sudo: false
+cache: bundler
+before_script:
+  - "bundle update"
 script: bundle exec rspec spec
