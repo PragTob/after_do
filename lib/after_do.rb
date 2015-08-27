@@ -1,5 +1,5 @@
-# The after_do library to add callbacks to methods in Ruby. Before using this
-# with any class, that class has to extend the AfterDo module first e.g.
+# The after_do library adds callbacks to methods in Ruby. Before using this
+# with any class, said class has to extend the AfterDo module first e.g.
 #    MyClass.extend AfterDo
 #    MyClass.after :some_method do awesome_stuff end
 #
@@ -12,7 +12,7 @@ module AfterDo
   class NonExistingMethodError < StandardError ; end
 
   # Raised when an error occurs in one of the callbacks of a method. Provides
-  # additional information as to for which method and where the block was
+  # additional information such as which method and where the block was
   # defined.
   class CallbackError < StandardError ; end
 
@@ -21,26 +21,27 @@ module AfterDo
   #    MyClass.after :some_method do awesome_stuff end
   # It can only take a list of methods after which a block should be executed:
   #    MyClass.after :method1, :method2, :method3 do puts 'jay!' end
-  # The list might also be an Array.
+  # The list can also be an Array.
   def after(*methods, &block)
     _after_do_define_callback(:after, methods, block)
   end
 
-  # This method works much like .after - just that the blocks are executed
+  # This method works much like .after - except blocks are executed
   # before the method is called.
   def before(*methods, &block)
     _after_do_define_callback(:before, methods, block)
   end
 
-  # Removes all callbacks attach to methods in this class.
+  # Removes all callbacks attached to methods in the class this was called from.
   def remove_all_callbacks
     @_after_do_callbacks = _after_do_basic_hash
   end
 
   private
+
   def _after_do_define_callback(type, methods, block)
     @_after_do_callbacks ||= _after_do_basic_hash
-    methods = methods.flatten #in case someone used an Array
+    methods = methods.flatten # in case someone used an Array
     _after_do_raise_no_method_specified(type) if methods.empty?
     methods.each do |method|
       _after_do_add_callback_to_method(type, method, block)
