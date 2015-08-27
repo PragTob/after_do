@@ -117,7 +117,7 @@ describe AfterDo do
         end
 
         before :each do
-          @dummy_class.send callback_adder,  :zero do raise StandardError, 'silly message' end
+          @dummy_class.send callback_adder, :zero do raise StandardError, 'silly message' end
         end
 
         it 'raises a CallbackError' do
@@ -149,12 +149,12 @@ describe AfterDo do
       end
 
       it 'can handle methods with a parameter' do
-        @dummy_class.send callback_adder,  :one do mockie.call_method end
+        @dummy_class.send callback_adder, :one do mockie.call_method end
         dummy_instance.one 5
       end
 
       it 'can handle methods with 2 parameters' do
-        @dummy_class.send callback_adder,  :two do mockie.call_method end
+        @dummy_class.send callback_adder, :two do mockie.call_method end
         dummy_instance.two 5, 8
       end
     end
@@ -162,13 +162,13 @@ describe AfterDo do
     describe 'with parameters for the given block' do
       it 'can handle one block parameter' do
         expect(mockie).to receive(:call_method).with(5)
-        @dummy_class.send callback_adder,  :one do |i| mockie.call_method i end
+        @dummy_class.send callback_adder, :one do |i| mockie.call_method i end
         dummy_instance.one 5
       end
 
       it 'can handle two block parameters' do
         expect(mockie).to receive(:call_method).with(5, 8)
-        @dummy_class.send callback_adder,  :two do |i, j| mockie.call_method i, j end
+        @dummy_class.send callback_adder, :two do |i, j| mockie.call_method i, j end
         dummy_instance.two 5, 8
       end
     end
@@ -182,7 +182,7 @@ describe AfterDo do
 
       it 'can take multiple method names as arguments' do
         expect(mockie).to receive(:call_method).exactly(3).times
-        @dummy_class.send callback_adder,  :zero, :one, :two do
+        @dummy_class.send callback_adder, :zero, :one, :two do
           mockie.call_method
         end
         call_all_3_methods
@@ -190,7 +190,7 @@ describe AfterDo do
 
       it 'can get the methods as an Array' do
         expect(mockie).to receive(:call_method).exactly(3).times
-        @dummy_class.send callback_adder,  [:zero, :one, :two] do
+        @dummy_class.send callback_adder, [:zero, :one, :two] do
           mockie.call_method
         end
         call_all_3_methods
@@ -208,7 +208,7 @@ describe AfterDo do
     describe 'it can get a hold of self, if needbe' do
       it 'works for a method without arguments' do
         expect(mockie).to receive(:call_method).with(dummy_instance)
-        @dummy_class.send callback_adder,  :zero do |object|
+        @dummy_class.send callback_adder, :zero do |object|
           mockie.call_method(object)
         end
         dummy_instance.zero
