@@ -17,7 +17,7 @@ class C
   include M
 
   def method
-    puts 'Overwritten method'
+    puts 'Overridden method'
   end
 end
 

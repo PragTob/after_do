@@ -18,19 +18,20 @@ Example.extend AfterDo
 
 Example.after :zero do puts 'Hello!' end
 
-# If the callback method takes no arguments
-# then the first argument passed to the block
-# with will the instance of the class you are in.
+# If the callback method takes no arguments then the first argument passed to
+# the block with will the instance of the class on which the original method
+# is called:
 Example.after :zero do |obj| puts obj.value end
 
-# Callback methods can take arguments.
+# The method arguments are passed to the callback as well:
 Example.after :two do |first, second| puts first + ' ' + second end
 
-# If the callback takes arguments, the last argument, after the required
-# arguments will be the instance of the class.
+# If the callback takes arguments, the last argument will be the instance of the
+# class:
 Example.after :two do |a, b, obj| puts a + ' ' + b + ' ' + obj.value end
 
-# You can also you use the * to suck up all the required arguments
+# You can also use the * to soak up all the method arguments and get
+# straight to the instance:
 Example.after :two do |*args, obj|
   puts "args passed to callback: #{args.join(', ')}"
   puts 'just ' +  obj.value

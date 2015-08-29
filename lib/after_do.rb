@@ -32,13 +32,12 @@ module AfterDo
     _after_do_define_callback(:before, methods, block)
   end
 
-  # Removes all callbacks attached to methods in the class this was called from.
+  # Removes all callbacks attached to methods in the module.
   def remove_all_callbacks
     @_after_do_callbacks = _after_do_basic_hash
   end
 
   private
-
   def _after_do_define_callback(type, methods, block)
     @_after_do_callbacks ||= _after_do_basic_hash
     methods = methods.flatten # in case someone used an Array
@@ -62,17 +61,15 @@ module AfterDo
 
   def _after_do_add_callback_to_method(type, method, block)
     alias_name = _after_do_aliased_name method
-    unless _after_do_already_redefined?(method, alias_name)
-      _after_do_redefine_method(method, alias_name)
-    end
+    _after_do_redefine(method, alias_name) unless _after_do_redefined?(alias_name)
     @_after_do_callbacks[type][method] << block
   end
 
-  def _after_do_already_redefined?(method, alias_name)
+  def _after_do_redefined?(alias_name)
     private_instance_methods(false).include? alias_name
   end
 
-  def _after_do_redefine_method(method, alias_name)
+  def _after_do_redefine(method, alias_name)
     _after_do_raise_no_method_error(method) unless _after_do_defined?(method)
     _after_do_rename_old_method(method, alias_name)
     _after_do_redefine_method_with_callback(method, alias_name)
