@@ -61,17 +61,19 @@ module AfterDo
   end
 
   def _after_do_add_callback_to_method(type, method, block)
-    _after_do_redefine_method(method) unless _after_do_already_redefined?(method)
+    alias_name = _after_do_aliased_name method
+    unless _after_do_already_redefined?(method, alias_name)
+      _after_do_redefine_method(method, alias_name)
+    end
     @_after_do_callbacks[type][method] << block
   end
 
-  def _after_do_already_redefined?(method)
-    private_instance_methods(false).include? _after_do_aliased_name(method)
+  def _after_do_already_redefined?(method, alias_name)
+    private_instance_methods(false).include? alias_name
   end
 
-  def _after_do_redefine_method(method)
+  def _after_do_redefine_method(method, alias_name)
     _after_do_raise_no_method_error(method) unless _after_do_defined?(method)
-    alias_name = _after_do_aliased_name method
     _after_do_rename_old_method(method, alias_name)
     _after_do_redefine_method_with_callback(method, alias_name)
   end
