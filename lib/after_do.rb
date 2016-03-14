@@ -97,7 +97,7 @@ module AfterDo
     define_method method do |*args|
       callback_klazz.send(:_after_do_execute_callbacks, :before, method, self, *args)
       return_value = send(alias_name, *args)
-      callback_klazz.send(:_after_do_execute_callbacks, :after, method, self, *args)
+      callback_klazz.send(:_after_do_execute_callbacks, :after, method, self, *args, return_value)
       return_value
     end
   end
