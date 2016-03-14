@@ -107,6 +107,11 @@ And finally if you want to access method name inside the callback:
 MyClass.after :two_arg_method do |arg1, arg2, obj, method| something(arg1, arg2, obj, method) end
 ```
 
+You can access returned value in `after` callback as the last argument.
+```ruby
+MyClass.after :two_arg_method do |args*, obj| result = args.last end
+```
+
 If you do not want to get a hold of the method arguments or the object, then you can just don't care about the block parameters :-)
 
 Check out the [getting a hold sample](https://github.com/PragTob/after_do/blob/master/samples/getting_a_hold.rb) for more.
