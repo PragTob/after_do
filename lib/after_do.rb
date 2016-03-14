@@ -110,7 +110,7 @@ module AfterDo
 
   def _after_do_execute_callback(block, method, object, *args)
     begin
-      block.call(*args, object)
+      block.call(*args, object, method)
     rescue Exception => error
       raise CallbackError, "A #{error.class}: #{error.message} was raised during an after_do callback block for method '#{method}' on the instance #{self.inspect} with the following arguments: #{args.join(', ')} defined in the file #{block.source_location[0]} in line #{block.source_location[1]}. This is the backtrace of the #{error.class}: \n #{error.backtrace.join("\n")}"
     end
