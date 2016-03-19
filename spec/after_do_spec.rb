@@ -21,7 +21,7 @@ describe AfterDo do
       end
 
       def two(param1, param2)
-        param2
+        param1 + param2
       end
     end
   end
@@ -223,6 +223,24 @@ describe AfterDo do
       end
     end
 
+    describe 'it can get a hold of the method name, if needbe' do
+      it 'works for a method without arguments' do
+        expect(mockie).to receive(:call_method).with(:zero)
+        @dummy_class.send callback_adder, :zero do |_object, method_name|
+          mockie.call_method(method_name)
+        end
+        dummy_instance.zero
+      end
+
+      it 'works for a method with arguments' do
+        expect(mockie).to receive(:call_method).with(1, 2, dummy_instance, :two)
+        @dummy_class.send callback_adder, :two do |arg1, arg2, object, method_name|
+          mockie.call_method(arg1, arg2, object, method_name)
+        end
+        dummy_instance.two(1, 2)
+      end
+    end
+
     describe 'inheritance' do
       let(:inherited_instance) {@inherited_class.new}
 
@@ -412,6 +430,16 @@ describe AfterDo do
       expect(callback).to receive(:before_call).ordered
       expect(callback).to receive(:after_call).ordered
       dummy_instance.zero
+    end
+  end
+
+  describe 'specific after behaviour' do
+    it 'also has access to the return value' do
+      expect(mockie).to receive(:call).with(10, 20, dummy_instance, :two, 30)
+      @dummy_class.after :two do |*args, inst, name, value|
+        mockie.call(args.first, args.last, inst, name, value)
+      end
+      dummy_instance.two 10, 20
     end
   end
 end
