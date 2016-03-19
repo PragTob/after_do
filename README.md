@@ -36,7 +36,7 @@ And then execute:
 Or install it yourself as:
 
     $ gem install after_do
-    
+
 And then you have to require the gem before you can use it:
 
     require 'after_do'
@@ -99,6 +99,17 @@ Of course you can get a hold of the method arguments and the object:
 
 ```ruby
 MyClass.after :two_arg_method do |arg1, arg2, obj| something(arg1, arg2, obj) end
+```
+
+And finally if you want to access method name inside the callback:
+
+```ruby
+MyClass.after :two_arg_method do |arg1, arg2, obj, method| something(arg1, arg2, obj, method) end
+```
+
+You can access returned value in `after` callback as the last argument.
+```ruby
+MyClass.after :two_arg_method do |args*, obj| result = args.last end
 ```
 
 If you do not want to get a hold of the method arguments or the object, then you can just don't care about the block parameters :-)
@@ -174,7 +185,7 @@ after_do works with modules just like it works with classes from version 0.3.0 o
 class MyClass
   include MyModule
   # ....
-end 
+end
 
 MyModule.extend AfterDo
 MyModule.after :some_method do cool_stuff end
