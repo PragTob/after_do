@@ -307,7 +307,9 @@ A use case I feel this is particularly made for is redrawing. That's what we use
 
 ## Does it work with Ruby interpreter X?
 
-Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with CRuby 1.9.3, 2.0, 2.1, 2.2 the latest jruby and rubinius releases. So in short, this should work with all of them and is aimed at doing so :-)
+Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with CRuby 1.9.3, 2.0, 2.1, 2.2, 2.3 and the latest JRuby releases. It _should_ work with rubinius, but some problems lead me to remove it from the build matrix.
+
+So in short, this should work with all of them and is aimed at doing so :-)
 
 ## Contributing
 
