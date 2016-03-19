@@ -11,3 +11,9 @@ M.singleton_class.after :magic do puts 'after_do is pure magic' end
 
 M.magic
 M.magic
+
+# prints:
+# magic
+# after_do is pure magic
+# magic
+# after_do is pure magic
