@@ -104,13 +104,13 @@ module AfterDo
 
   def _after_do_execute_before_callbacks(method, object, *args)
     _after_do_each_callback_wrapped(:before, method) do |callback|
-      callback.call(*args, object, method)
+      callback.call(*args, method, object)
     end
   end
 
   def _after_do_execute_after_callbacks(method, object, *args, return_value)
     _after_do_each_callback_wrapped(:after, method) do |callback|
-      callback.call(*args, object, method, return_value)
+      callback.call(*args, method, return_value, object)
     end
   end
 

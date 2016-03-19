@@ -208,7 +208,7 @@ describe AfterDo do
     describe 'it can get a hold of self, if needbe' do
       it 'works for a method without arguments' do
         expect(mockie).to receive(:call_method).with(dummy_instance)
-        @dummy_class.send callback_adder, :zero do |object|
+        @dummy_class.send callback_adder, :zero do |*_things, object|
           mockie.call_method(object)
         end
         dummy_instance.zero
@@ -216,7 +216,7 @@ describe AfterDo do
 
       it 'works for a method with 2 arguments' do
         expect(mockie).to receive(:call_method).with(1, 2, dummy_instance)
-        @dummy_class.send callback_adder, :two do |first, second, object|
+        @dummy_class.send callback_adder, :two do |first, second, *_things, object|
           mockie.call_method(first, second, object)
         end
         dummy_instance.two 1, 2
@@ -226,16 +226,24 @@ describe AfterDo do
     describe 'it can get a hold of the method name, if needbe' do
       it 'works for a method without arguments' do
         expect(mockie).to receive(:call_method).with(:zero)
-        @dummy_class.send callback_adder, :zero do |_object, method_name|
+        @dummy_class.send callback_adder, :zero do |method_name|
           mockie.call_method(method_name)
         end
         dummy_instance.zero
       end
 
       it 'works for a method with arguments' do
-        expect(mockie).to receive(:call_method).with(1, 2, dummy_instance, :two)
-        @dummy_class.send callback_adder, :two do |arg1, arg2, object, method_name|
-          mockie.call_method(arg1, arg2, object, method_name)
+        expect(mockie).to receive(:call_method).with(1, 2, :two)
+        @dummy_class.send callback_adder, :two do |arg1, arg2, method_name|
+          mockie.call_method(arg1, arg2, method_name)
+        end
+        dummy_instance.two(1, 2)
+      end
+
+      it 'can also pass along the object' do
+        expect(mockie).to receive(:call_method).with(1, 2, :two, dummy_instance)
+        @dummy_class.send callback_adder, :two do |arg1, arg2, method_name, *, inst|
+          mockie.call_method(arg1, arg2, method_name, inst)
         end
         dummy_instance.two(1, 2)
       end
@@ -433,11 +441,19 @@ describe AfterDo do
     end
   end
 
-  describe 'specific after behaviour' do
-    it 'also has access to the return value' do
+  describe 'difference between before and after' do
+    it 'after also has access to the return value' do
       expect(mockie).to receive(:call).with(10, 20, dummy_instance, :two, 30)
-      @dummy_class.after :two do |*args, inst, name, value|
+      @dummy_class.after :two do |*args, name, value, inst|
         mockie.call(args.first, args.last, inst, name, value)
+      end
+      dummy_instance.two 10, 20
+    end
+
+    it 'before can not access to the return value' do
+      expect(mockie).to receive(:call).with(10, 20, dummy_instance, :two)
+      @dummy_class.before :two do |*args, name, inst|
+        mockie.call(args.first, args.last, inst, name)
       end
       dummy_instance.two 10, 20
     end
