@@ -1,6 +1,7 @@
 ## 0.4.0 (March 25th, 2015)
 
 * Hand new arguments to callbacks, namely method name and return value (for after). New Order of block arguments for before is: `arguments, method_name, object`, for after it is: `arguments, method_name, return_value, object`. To migrate to this version you need to change blocks that either use `*args` and then access `args` or calls that do `arg_1, arg_2, object` as the third argument is now the method name. You can change them to `arg_1, arg_2, *, object`.
+* Dropped explicit rubinius support, it should work but dropped testing. If you need it please get in touch.
 
 ## 0.3.1 (March 27th, 2014)
 
