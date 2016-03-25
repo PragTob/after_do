@@ -1,13 +1,13 @@
-## 0.4.0 (unreleased)
+## 0.4.0 (March 25th, 2015)
 
 * Hand new arguments to callbacks, namely method name and return value (for after). New Order of block arguments for before is: `arguments, method_name, object`, for after it is: `arguments, method_name, return_value, object`. To migrate to this version you need to change blocks that either use `*args` and then access `args` or calls that do `arg_1, arg_2, object` as the third argument is now the method name. You can change them to `arg_1, arg_2, *, object`.
 
-## 0.3.1 (March 27, 2014)
+## 0.3.1 (March 27th, 2014)
 
 * improve error reporting
 * run warning free with -w
 
-## 0.3.0 (January 19, 2014)
+## 0.3.0 (January 19th, 2014)
 
 * Work properly with inheritance (callbacks are just called if `super` is really invoked)
 * Work properly with modules (callbacks on module methods are executed when the methods are called)
