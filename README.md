@@ -6,6 +6,8 @@ If the class extends `AfterDo` you can simply do this by
 
 ```
 MyClass.after :some_method do whatever_you_want end
+# you can also do before
+MyClass.before :a_method do so_much end
 ```
 
 Some facts about after_do:
@@ -36,7 +38,7 @@ And then execute:
 Or install it yourself as:
 
     $ gem install after_do
-    
+
 And then you have to require the gem before you can use it:
 
     require 'after_do'
@@ -79,7 +81,7 @@ dog2.bark
 # I just heard a dog bark!
 ```
 
-### Getting a hold of the method arguments and the object
+### Getting a hold of the method arguments, the object and more!
 
 With after_do both the arguments to the method you are attaching the callback to and the object for which the callback is executed are passed into the callback block.
 
@@ -89,19 +91,47 @@ So if you have a method that takes two arguments you can get those like this:
 MyClass.after :two_arg_method do |argument_one, argument_2| something end
 ```
 
-The object itself is passed in as the last block argument, so if you just care about the object you can do:
+The method name is passed in as the third argument:
+
+```ruby
+MyClass.before :two_arg_method do |argument_one, argument_2, method_name|
+  something
+end
+```
+
+The method name is passed for convenience if you do logging for instance. If you start doing `if` or `case` on the method name, rather think about if you should use different callbacks for the different methods.
+
+Another argument that is passed in, but only for `after` is the return value of the method so you can do:
+
+```ruby
+MyClass.after :two_arg_method do |arg1, arg2, name, return_value|
+  report return_value
+end
+```
+
+The object itself is passed in as the last block argument finally so all arguments together are:
+
+```ruby
+MyClass.after :method do |arg1, arg2, name, return_value, object|
+  magic
+end
+
+# remember before doesn't have the return value
+MyClass.before :method do |arg1, arg2, name, object|
+  other_magic
+end
+```
+
+Why this order of arguments? Well at first there are the arguments related to the method itself (arguments, name and optional return value) and then there is the object.
+
+Of course you can just grab the object, if you're not interested in all the method related data, by using the splat operator to _soak up_ all the other arguments:
 
 ```ruby
 MyClass.after :two_arg_method do |*, obj| fancy_stuff(obj) end
 ```
 
-Of course you can get a hold of the method arguments and the object:
 
-```ruby
-MyClass.after :two_arg_method do |arg1, arg2, obj| something(arg1, arg2, obj) end
-```
-
-If you do not want to get a hold of the method arguments or the object, then you can just don't care about the block parameters :-)
+If you do not want to get a hold of the method arguments or the object, then you can just don't care about the block parameters and can leave them out :-)
 
 Check out the [getting a hold sample](https://github.com/PragTob/after_do/blob/master/samples/getting_a_hold.rb) for more.
 
@@ -174,7 +204,7 @@ after_do works with modules just like it works with classes from version 0.3.0 o
 class MyClass
   include MyModule
   # ....
-end 
+end
 
 MyModule.extend AfterDo
 MyModule.after :some_method do cool_stuff end
@@ -252,17 +282,6 @@ return_value
 
 To do this some helper methods are defined in the AfterDo module. As classes have to extend the AfterDo module all the methods that you are not supposed to call yourself are prefixed with `_after_do_` to minimize the risk of method name clashes. The only not prefixed method are `after`, `before` and `remove_all_callbacks`.
 
-
-## Is there a before method?
-
-Yes. It works just like the `after` method, but the callbacks are executed before the original method is called. You can also mix and match before and after calls.
-
-```ruby
-MyClass.before :a_method do so_much end
-```
-
-Check out the [before sample](https://github.com/PragTob/after_do/blob/master/samples/before.rb).
-
 ### Method granularity
 
 after_do works on the granularity of methods. That means that you can only attach callbacks to methods. This is no problem however, since if it's your code you can always define new methods. E.g. if you want to attach callbacks to the end of some operation that happens in the middle of a method just define a new method for that piece of code.
@@ -288,7 +307,9 @@ A use case I feel this is particularly made for is redrawing. That's what we use
 
 ## Does it work with Ruby interpreter X?
 
-Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with MRI 1.9.3, 2.0, 2.1, the latest jruby and rubinius releases in 1.9 mode. So in short, this should work with all of them and is aimed at doing so :-)
+Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with CRuby 1.9.3, 2.0, 2.1, 2.2, 2.3 and the latest JRuby releases. It _should_ work with rubinius, but some problems lead me to remove it from the build matrix.
+
+So in short, this should work with all of them and is aimed at doing so :-)
 
 ## Contributing
 

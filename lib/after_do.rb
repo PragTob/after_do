@@ -95,24 +95,32 @@ module AfterDo
   def _after_do_redefine_method_with_callback(method, alias_name)
     callback_klazz = self
     define_method method do |*args|
-      callback_klazz.send(:_after_do_execute_callbacks, :before, method, self, *args)
+      callback_klazz.send(:_after_do_execute_before_callbacks, method, self, *args)
       return_value = send(alias_name, *args)
-      callback_klazz.send(:_after_do_execute_callbacks, :after, method, self, *args)
+      callback_klazz.send(:_after_do_execute_after_callbacks, method, self, *args, return_value)
       return_value
     end
   end
 
-  def _after_do_execute_callbacks(type, method, object, *args)
-    @_after_do_callbacks[type][method].each do |block|
-      _after_do_execute_callback(block, method, object, *args)
+  def _after_do_execute_before_callbacks(method, object, *args)
+    _after_do_each_callback_wrapped(:before, method) do |callback|
+      callback.call(*args, method, object)
     end
   end
 
-  def _after_do_execute_callback(block, method, object, *args)
-    begin
-      block.call(*args, object)
-    rescue Exception => error
-      raise CallbackError, "A #{error.class}: #{error.message} was raised during an after_do callback block for method '#{method}' on the instance #{self.inspect} with the following arguments: #{args.join(', ')} defined in the file #{block.source_location[0]} in line #{block.source_location[1]}. This is the backtrace of the #{error.class}: \n #{error.backtrace.join("\n")}"
+  def _after_do_execute_after_callbacks(method, object, *args, return_value)
+    _after_do_each_callback_wrapped(:after, method) do |callback|
+      callback.call(*args, method, return_value, object)
+    end
+  end
+
+  def _after_do_each_callback_wrapped(type, method)
+    @_after_do_callbacks[type][method].each do |block|
+      begin
+        yield block
+      rescue Exception => error
+        raise CallbackError, "#{error.class}: #{error.message} raised during an after_do callback block for method '#{method}' on the instance #{self.inspect} defined in the file #{block.source_location[0]} in line #{block.source_location[1]}.\n This is the backtrace of the original error: \n #{error.backtrace.join("\n")}"
+      end
     end
   end
 end
