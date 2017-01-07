@@ -6,7 +6,7 @@ gem 'bundler'
 gem 'rake'
 gem 'rspec'
 gem 'simplecov'
-gem 'coveralls'
+gem "codeclimate-test-reporter"
 gem 'rdoc'
 
 RUBY_2 = /^2\./

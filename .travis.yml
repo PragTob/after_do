@@ -18,3 +18,6 @@ cache: bundler
 before_script:
   - "bundle update"
 script: bundle exec rspec spec
+addons:
+    code_climate:
+        repo_token: 003492f2f00fb5d11e9cf945c5d88e44413800190183ee4fa0c97edff4fd553c
