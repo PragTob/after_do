@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # The after_do library adds callbacks to methods in Ruby. Before using this
 # with any class, said class has to extend the AfterDo module first e.g.
 #    MyClass.extend AfterDo
