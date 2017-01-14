@@ -1,3 +1,8 @@
+## 0.5.0 (unreleased)
+
+* Introduces AfterDo::AlternativeNaming to have all methods (`after`, `before`, `remove_all_callbacks`) prefixed with `ad_` to avoid naming conflicts for instance in ActionCable
+* get all core functionality into AfterDo::Core so people can write their own interfaces with own method names
+
 ## 0.4.0 (March 25th, 2016)
 
 * Hand new arguments to callbacks, namely method name and return value (for after). New Order of block arguments for before is: `arguments, method_name, object`, for after it is: `arguments, method_name, return_value, object`. To migrate to this version you need to change blocks that either use `*args` and then access `args` or calls that do `arg_1, arg_2, object` as the third argument is now the method name. You can change them to `arg_1, arg_2, *, object`.
