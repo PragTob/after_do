@@ -13,7 +13,7 @@ MyClass.before :a_method do so_much end
 Some facts about after_do:
 
 * no runtime dependencies
-* small code base: code is around 120 lines of code with blank lines, comments and everything - simplecov reports less than 60 relevant lines of code
+* small code base: code is around 160 lines of code with blank lines, comments and everything - simplecov reports less than 80 relevant lines of code
 * simple DSL
 * no monkey patching
 
