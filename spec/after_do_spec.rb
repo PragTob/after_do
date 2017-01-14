@@ -2,26 +2,28 @@ require 'spec_helper'
 
 describe AfterDo do
 
-  let(:dummy_instance) { dummy_class.new }
-  let(:mockie) {double 'mock block', call: true}
-  let(:dummy_class) do
-    Class.new do
-      extend AfterDo
-      def zero
-        0
-      end
+  shared_examples_for 'calling callbacks' do |ad_module,
+                                              callback_adder,
+                                              callback_remover|
+    let(:dummy_instance) { dummy_class.new }
+    let(:mockie) {double 'mock block', call: true}
+    let(:dummy_class) do
+      Class.new do
+        extend ad_module
+        def zero
+          0
+        end
 
-      def one(param)
-        param
-      end
+        def one(param)
+          param
+        end
 
-      def two(param1, param2)
-        param1 + param2
+        def two(param1, param2)
+          param1 + param2
+        end
       end
     end
-  end
 
-  shared_examples_for 'calling callbacks' do |callback_adder|
     it 'does not monkey patch Class' do
       expect(Class.new).not_to respond_to callback_adder
     end
@@ -74,14 +76,14 @@ describe AfterDo do
       it 'can remove all callbacks' do
         expect(mockie).not_to receive :call_method
         dummy_class.send callback_adder, :zero do mockie.call_method end
-        dummy_class.remove_all_callbacks
+        dummy_class.send callback_remover
         dummy_instance.zero
       end
 
       it 'does not crash the addition of new callbacks afterwards' do
         expect(mockie).to receive :call_method
         dummy_class.send callback_adder, :zero do mockie.call_method end
-        dummy_class.remove_all_callbacks
+        dummy_class.send callback_remover
         dummy_class.send callback_adder, :zero do mockie.call_method end
         dummy_instance.zero
       end
@@ -266,13 +268,13 @@ describe AfterDo do
 
         it 'remove_callbacks does not remove the callbacks on parent class' do
           expect(mockie).to receive :call
-          inherited_class.remove_all_callbacks
+          inherited_class.send callback_remover
           inherited_instance.zero
         end
 
         it 'remove_callbacks on the parent does remove the callbacks' do
           expect(mockie).not_to receive :call
-          dummy_class.remove_all_callbacks
+          dummy_class.send callback_remover
           inherited_instance.zero
         end
       end
@@ -290,7 +292,7 @@ describe AfterDo do
 
         before :each do
           dummy_class.send callback_adder, :zero do mockie.call end
-          overwriting_child_class.extend AfterDo
+          overwriting_child_class.extend ad_module
           overwriting_child_class.send callback_adder, :zero do
             mockie.call
           end
@@ -336,7 +338,7 @@ describe AfterDo do
             'module'
           end
         end
-        dummy.extend AfterDo
+        dummy.extend ad_module
         dummy.send callback_adder, :module_method do mockie.call end
         dummy
       end
@@ -368,7 +370,7 @@ describe AfterDo do
         before :each do
           other_module = other_dummy_module
           bare_class_with_module.send(:include, other_module)
-          other_module.extend AfterDo
+          other_module.extend ad_module
           other_module.send callback_adder, :module_method do mockie.call end
         end
 
@@ -391,7 +393,7 @@ describe AfterDo do
 
       it 'works when you use the singleton_class' do
         my_module = singleton_module
-        my_module.singleton_class.extend AfterDo
+        my_module.singleton_class.extend ad_module
         my_module.singleton_class.send callback_adder, :my_singleton_method do
           mockie.call
         end
@@ -400,52 +402,118 @@ describe AfterDo do
       end
 
     end
-
   end
 
-  it_behaves_like 'calling callbacks', :after
-  it_behaves_like 'calling callbacks', :before
+  context 'normal name clash free setup' do
+    it_behaves_like 'calling callbacks', AfterDo, :after, :remove_all_callbacks
+    it_behaves_like 'calling callbacks', AfterDo, :before, :remove_all_callbacks
 
-  describe 'before and after behaviour' do
-    let(:callback){double 'callback', before_call: nil, after_call: nil}
+    describe 'before and after behaviour' do
+      let(:dummy_instance) { dummy_class.new }
+      let(:mockie) {double 'mock block', call: true}
+      let(:dummy_class) do
+        Class.new do
+          extend AfterDo
+          def zero
+            0
+          end
 
-    before :each do
-      dummy_class.before :zero do callback.before_call end
-      dummy_class.after :zero do callback.after_call end
-    end
+          def one(param)
+            param
+          end
 
-    it 'calls the before callback' do
-      expect(callback).to receive :before_call
-      dummy_instance.zero
-    end
+          def two(param1, param2)
+            param1 + param2
+          end
+        end
+      end
 
-    it 'calls the after callback' do
-      expect(callback).to receive :after_call
-      dummy_instance.zero
-    end
+      let(:callback){double 'callback', before_call: nil, after_call: nil}
 
-    it 'receives the calls in the right order' do
-      expect(callback).to receive(:before_call).ordered
-      expect(callback).to receive(:after_call).ordered
-      dummy_instance.zero
+      before :each do
+        dummy_class.before :zero do callback.before_call end
+        dummy_class.after :zero do callback.after_call end
+      end
+
+      it 'calls the before callback' do
+        expect(callback).to receive :before_call
+        dummy_instance.zero
+      end
+
+      it 'calls the after callback' do
+        expect(callback).to receive :after_call
+        dummy_instance.zero
+      end
+
+      it 'receives the calls in the right order' do
+        expect(callback).to receive(:before_call).ordered
+        expect(callback).to receive(:after_call).ordered
+        dummy_instance.zero
+      end
+
+      describe 'difference between before and after' do
+        it 'after also has access to the return value' do
+          expect(mockie).to receive(:call).with(10, 20, dummy_instance, :two, 30)
+          dummy_class.after :two do |*args, name, value, inst|
+            mockie.call(args.first, args.last, inst, name, value)
+          end
+          dummy_instance.two 10, 20
+        end
+
+        it 'before can not access to the return value' do
+          expect(mockie).to receive(:call).with(10, 20, dummy_instance, :two)
+          dummy_class.before :two do |*args, name, inst|
+            mockie.call(args.first, args.last, inst, name)
+          end
+          dummy_instance.two 10, 20
+        end
+      end
     end
   end
 
-  describe 'difference between before and after' do
-    it 'after also has access to the return value' do
-      expect(mockie).to receive(:call).with(10, 20, dummy_instance, :two, 30)
-      dummy_class.after :two do |*args, name, value, inst|
-        mockie.call(args.first, args.last, inst, name, value)
+  context 'setup with name clashes' do
+    let(:dummy_instance) { dummy_class.new }
+    let(:mockie) {double 'mock block', call: true}
+    let(:dummy_class) do
+      Class.new do
+        extend AfterDo
+        def zero
+          0
+        end
+
+        def one(param)
+          param
+        end
+
+        def two(param1, param2)
+          param1 + param2
+        end
+
+        def self.after(_)
+          'foo'
+        end
+
+        def self.before(_)
+          'bar'
+        end
       end
-      dummy_instance.two 10, 20
     end
 
-    it 'before can not access to the return value' do
-      expect(mockie).to receive(:call).with(10, 20, dummy_instance, :two)
-      dummy_class.before :two do |*args, name, inst|
-        mockie.call(args.first, args.last, inst, name)
-      end
-      dummy_instance.two 10, 20
+    it 'sadly doesn\'t work with normal before/after' do
+      dummy_class.after :zero do mockie.call end
+      dummy_instance.zero
+      expect(mockie).not_to have_received(:call)
+    end
+
+    describe 'circumvent it using alternative naming' do
+      it_behaves_like 'calling callbacks',
+                      AfterDo::AlternativeNaming,
+                      :ad_after,
+                      :ad_remove_all_callbacks
+      it_behaves_like 'calling callbacks',
+                      AfterDo::AlternativeNaming,
+                      :ad_before,
+                      :ad_remove_all_callbacks
     end
   end
 end
