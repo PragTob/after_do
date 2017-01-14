@@ -288,6 +288,44 @@ after_do works on the granularity of methods. That means that you can only attac
 
 I sometimes do this for evaluating a block, as I want to do something when that block finished evaluating so I define a method `eval_block` wherein I just evaluate the block.
 
+## Naming Clashes
+
+If other classes or modules define `after`, `before` or `remove_all_callbacks` methods you might run into problems. One of those examples is [ActionCable](https://github.com/PragTob/after_do/issues/22) and other classes that might interact with ActiveSupport's callback code.
+
+For this case AfterDo has an `AfterDo::AlternativeNaming` module that you can extend in AfterDos stead just like you would normally do. Then all these methods are prefixed with `ad_` to avoid naming clashes.
+
+```ruby
+class WithClashes
+  extend AfterDo::AlternativeNaming
+  
+  # ...
+  
+  ad_after :some_method do magic end
+end
+```
+
+Those names aren't the nices, now are they? Well, lucky you! You can easily define your own interface into `AfterDo` with your own method names as all methods live in `AfterDo::Core` and you just need to define which methods call them. For example:
+
+```ruby
+module MyOwnAfterDo
+  include AfterDo::Core
+
+  def later(*methods, &block)
+    _after_do_define_callback(:after, methods, block)
+  end
+
+  def earlier(*methods, &block)
+    _after_do_define_callback(:before, methods, block)
+  end
+
+  def forget_it_all
+    _after_do_remove_all_callbacks
+  end
+end
+```
+
+Which you can then use as you'd expect, [see the sample for some more detail](https://github.com/PragTob/after_do/blob/master/samples/alternative_naming.rb)
+
 ## Is this a good idea?
 
 Always depends on what you are doing with it. As many things out there it has its use cases but can easily be misused.
@@ -307,7 +345,7 @@ A use case I feel this is particularly made for is redrawing. That's what we use
 
 ## Does it work with Ruby interpreter X?
 
-Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with CRuby 1.9.3, 2.0, 2.1, 2.2, 2.3 and the latest JRuby releases. It _should_ work with rubinius, but some problems lead me to remove it from the build matrix.
+Thanks to the awesome [travis CI](https://travis-ci.org/) the specs are run with CRuby 1.9.3, 2.0, 2.1, 2.2, 2.3, 2.4 and JRuby 1.7, 9.0 and 9.1. It _should_ work with rubinius, but some problems lead me to remove it from the build matrix.
 
 So in short, this should work with all of them and is aimed at doing so :-)
 
