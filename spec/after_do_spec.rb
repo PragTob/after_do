@@ -22,6 +22,9 @@ describe AfterDo do
           param1 + param2
         end
       end
+
+      def kwargs(defd: :default, reqd:)
+      end
     end
 
     it 'does not monkey patch Class' do
@@ -154,6 +157,11 @@ describe AfterDo do
         dummy_class.send callback_adder, :two do mockie.call_method end
         dummy_instance.two 5, 8
       end
+
+      it 'can handle methods with keyword arguments' do
+        @dummy_class.send callback_adder, :kwargs do mockie.call_method end
+        dummy_instance.kwargs defd: :def, reqd: :req
+      end
     end
 
     describe 'with parameters for the given block' do
@@ -167,6 +175,14 @@ describe AfterDo do
         expect(mockie).to receive(:call_method).with(5, 8)
         dummy_class.send callback_adder, :two do |i, j| mockie.call_method i, j end
         dummy_instance.two 5, 8
+      end
+
+      it 'can handle keyword arguments' do
+        expect(mockie).to receive(:call_method).with(defd: :def, reqd: :req)
+        @dummy_class.send callback_adder, :kwargs do |args|
+          mockie.call_method defd: args[:defd], reqd: args[:reqd]
+        end
+        dummy_instance.kwargs defd: :def, reqd: :req
       end
     end
 
